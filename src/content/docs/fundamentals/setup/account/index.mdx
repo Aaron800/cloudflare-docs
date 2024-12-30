@@ -12,4 +12,27 @@ import { DirectoryListing } from "~/components"
 
 If you need help setting up a new Cloudflare account, refer to the following resources:
 
-<DirectoryListing />
+<package main
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/cloudflare/cloudflare-go"
+	"github.com/cloudflare/cloudflare-go/certificate_authorities"
+	"github.com/cloudflare/cloudflare-go/option"
+)
+
+func main() {
+	client := cloudflare.NewClient(
+		option.WithAPIKey("144c9defac04969c7bfad8efaa8ea194"), // defaults to os.LookupEnv("CLOUDFLARE_API_KEY")
+		option.WithAPIEmail("user@example.com"),               // defaults to os.LookupEnv("CLOUDFLARE_EMAIL")
+	)
+	hostnameAssociation, err := client.CertificateAuthorities.HostnameAssociations.Update(context.TODO(), certificate_authorities.HostnameAssociationUpdateParams{
+		ZoneID: cloudflare.F("023e105f4ecef8ad9ca31a8372d0c353"),
+	})
+	if err != nil {
+		panic(err.Error())
+	}
+	fmt.Printf("%+v\n", hostnameAssociation.Hostnames)
+}
