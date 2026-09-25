@@ -1,7 +1,10 @@
 ---
 title: Configure custom headers
+description: Set custom request headers for R2 S3 API extensions using boto3 or aws-sdk-js-v3.
 pcx_content_type: example
-
+reviewed: 2023-07-06
+products:
+  - r2
 ---
 
 Some of R2's [extensions](/r2/api/s3/extensions/) require setting a specific header when using them in the S3 compatible API. For some functionality you may want to set a request header on an entire category of requests. Other times you may want to configure a different header for each individual request. This page contains some examples on how to do so with `boto3` and with `aws-sdk-js-v3`.
@@ -18,9 +21,11 @@ When using certain functionality, like the `cf-create-bucket-if-missing` header,
 import boto3
 
 client = boto3.resource('s3',
-  endpoint_url = 'https://<accountid>.r2.cloudflarestorage.com',
-  aws_access_key_id = '<access_key_id>',
-  aws_secret_access_key = '<access_key_secret>'
+  # Provide your Cloudflare account ID
+  endpoint_url = 'https://<ACCOUNT_ID>.r2.cloudflarestorage.com',
+  # Retrieve your S3 API credentials for your R2 bucket via API tokens (see: https://developers.cloudflare.com/r2/api/tokens)
+  aws_access_key_id = '<ACCESS_KEY_ID>',
+  aws_secret_access_key = '<SECRET_ACCESS_KEY>'
 )
 
 event_system = client.meta.events
@@ -31,7 +36,7 @@ def add_custom_header(params, **kwargs):
 
 event_system.register('before-call.s3.PutObject', add_custom_header)
 
-response = client.put_object(Bucket="my_bucket", Key="my_file", Body="file_contents")
+response = client.put_object(Bucket="my-bucket", Key="my_file", Body="file_contents")
 print(response)
 ```
 
@@ -40,34 +45,36 @@ print(response)
 `aws-sdk-js-v3` allows the customization of request behavior through the use of its [middleware stack](https://aws.amazon.com/blogs/developer/middleware-stack-modular-aws-sdk-js/). This example adds a middleware to the client which adds a header to every `PutObject` request being made.
 
 ```ts
-import {
-  PutObjectCommand,
-  S3Client,
-} from "@aws-sdk/client-s3";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { HttpRequest } from "@smithy/core/protocols";
 
 const client = new S3Client({
-  region: "auto",
-  endpoint: `https://${ACCOUNT_ID}.r2.cloudflarestorage.com`,
-  credentials: {
-    accessKeyId: ACCESS_KEY_ID,
-    secretAccessKey: SECRET_ACCESS_KEY,
-  },
+	region: "auto", // Required by SDK but not used by R2
+	endpoint: `https://${ACCOUNT_ID}.r2.cloudflarestorage.com`,
+	// Retrieve your S3 API credentials for your R2 bucket via API tokens (see: https://developers.cloudflare.com/r2/api/tokens)
+	credentials: {
+		accessKeyId: ACCESS_KEY_ID,
+		secretAccessKey: SECRET_ACCESS_KEY,
+	},
 });
 
 client.middlewareStack.add(
-  (next, context) => async (args) => {
-      const r = args.request as RequestInit
-      r.headers["cf-create-bucket-if-missing"] = "true";
+	(next) => async (args) => {
+		const request = args.request;
 
-      return await next(args)
-    },
-  { step: 'build', name: 'customHeaders' },
-)
+		if (HttpRequest.isInstance(request)) {
+			request.headers["cf-create-bucket-if-missing"] = "true";
+		}
+
+		return next(args);
+	},
+	{ step: "build", name: "customHeaders" },
+);
 
 const command = new PutObjectCommand({
-  Bucket: "my_bucket",
-  Key: "my_key",
-  Body: "my_data"
+	Bucket: "my-bucket",
+	Key: "my_key",
+	Body: "my_data",
 });
 
 const response = await client.send(command);
@@ -87,9 +94,11 @@ To enable us to pass custom headers as an extra argument into the call to `clien
 import boto3
 
 client = boto3.resource('s3',
-  endpoint_url = 'https://<accountid>.r2.cloudflarestorage.com',
-  aws_access_key_id = '<access_key_id>',
-  aws_secret_access_key = '<access_key_secret>'
+  # Provide your Cloudflare account ID
+  endpoint_url = 'https://<ACCOUNT_ID>.r2.cloudflarestorage.com',
+  # Retrieve your S3 API credentials for your R2 bucket via API tokens (see: https://developers.cloudflare.com/r2/api/tokens)
+  aws_access_key_id = '<ACCESS_KEY_ID>',
+  aws_secret_access_key = '<SECRET_ACCESS_KEY>'
 )
 
 event_system = client.meta.events
@@ -110,7 +119,7 @@ event_system.register('before-call.s3.PutObject', add_custom_headers)
 custom_headers = {'If-Match' : '"29d911f495d1ba7cb3a4d7d15e63236a"'}
 
 # Note that boto3 will throw an exception if the precondition failed. Catch this exception if necessary
-response = client.put_object(Bucket="my_bucket", Key="my_key", Body="file_contents", custom_headers=custom_headers)
+response = client.put_object(Bucket="my-bucket", Key="my_key", Body="file_contents", custom_headers=custom_headers)
 print(response)
 ```
 
@@ -119,42 +128,39 @@ print(response)
 Here we again configure the header we would like to set by creating a middleware, but this time we add the middleware to the request itself instead of to the whole client.
 
 ```ts
-import {
-  PutObjectCommand,
-  S3Client,
-} from "@aws-sdk/client-s3";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { HttpRequest } from "@smithy/core/protocols";
 
 const client = new S3Client({
-  region: "auto",
-  endpoint: `https://${ACCOUNT_ID}.r2.cloudflarestorage.com`,
-  credentials: {
-    accessKeyId: ACCESS_KEY_ID,
-    secretAccessKey: SECRET_ACCESS_KEY,
-  },
+	region: "auto", // Required by SDK but not used by R2
+	// Provide your Cloudflare account ID
+	endpoint: `https://${ACCOUNT_ID}.r2.cloudflarestorage.com`,
+	// Retrieve your S3 API credentials for your R2 bucket via API tokens (see: https://developers.cloudflare.com/r2/api/tokens)
+	credentials: {
+		accessKeyId: ACCESS_KEY_ID,
+		secretAccessKey: SECRET_ACCESS_KEY,
+	},
 });
 
 const command = new PutObjectCommand({
-  Bucket: "my_bucket",
-  Key: "my_key",
-  Body: "my_data"
+	Bucket: "my-bucket",
+	Key: "my_key",
+	Body: "my_data",
 });
 
-const headers = { 'If-Match': '"29d911f495d1ba7cb3a4d7d15e63236a"' }
+const headers = { "If-Match": '"29d911f495d1ba7cb3a4d7d15e63236a"' };
 command.middlewareStack.add(
-  (next) =>
-    (args) => {
-      const r = args.request as RequestInit
+	(next) => (args) => {
+		const request = args.request;
 
-      Object.entries(headers).forEach(
-        ([k, v]: [key: string, value: string]): void => {
-          r.headers[k] = v
-        },
-      )
+		if (HttpRequest.isInstance(request)) {
+			Object.assign(request.headers, headers);
+		}
 
-      return next(args)
-    },
-  { step: 'build', name: 'customHeaders' },
-)
+		return next(args);
+	},
+	{ step: "build", name: "customHeaders" },
+);
 const response = await client.send(command);
 
 console.log(response);

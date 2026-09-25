@@ -1,15 +1,17 @@
 ---
 pcx_content_type: configuration
 title: Real-time validation
+description: Validate custom hostnames when customers add DNS routing records to their domain.
+products:
+  - cloudflare-for-saas
 sidebar:
   order: 2
 head:
   - tag: title
     content: Real-time validation methods - Custom Hostname Validation
-
 ---
 
-import { Render } from "~/components"
+import { Render } from "~/components";
 
 When you use a real-time validation method, Cloudflare verifies your customer's hostname when your customers adds their [DNS routing record](/cloudflare-for-platforms/cloudflare-for-saas/start/getting-started/#3-have-customer-create-cname-record) to their authoritative DNS.
 
@@ -31,8 +33,8 @@ The exact record depends on your Cloudflare for SaaS setup.
 
 ### Normal setup (CNAME target)
 
-<Render file="cname-target-process" />
+<Render file="cname-target-process" product="cloudflare-for-platforms" />
 
 ### Apex proxying
 
-<Render file="apex-proxying-process" />
+<Render file="apex-proxying-process" product="cloudflare-for-platforms" />

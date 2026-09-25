@@ -1,9 +1,11 @@
 ---
 pcx_content_type: reference
 title: Domains ranking
+description: Retrieve Cloudflare Radar domain rankings based on 1.1.1.1 DNS queries, including ordered top 100 lists and bucket datasets up to one million domains.
 sidebar:
   order: 5
-
+products:
+  - radar
 ---
 
 Cloudflare regularly generates a domain ranking based on DNS queries to [1.1.1.1](/1.1.1.1/),  Cloudflare's public DNS resolver.  Refer to the [blog post](https://blog.cloudflare.com/radar-domain-rankings/) for a deep dive. In short, Cloudflare generates two types of listings:
@@ -24,24 +26,35 @@ curl "https://api.cloudflare.com/client/v4/radar/ranking/top?name=top&limit=5" \
 
 ```json
 {
-  "rank": 1,
-  "domain": "google.com"
-},
-{
-  "rank": 2,
-  "domain": "googleapis.com"
-},
-{
-  "rank": 3,
-  "domain": "facebook.com"
-},
-{
-  "rank": 4,
-  "domain": "gstatic.com"
-},
-{
-  "rank": 5,
-  "domain": "apple.com"
+  "success": true,
+  "errors": [],
+  "result": {
+    "top_0": [
+			{
+				"rank": 1,
+				"domain": "google.com"
+			},
+			{
+				"rank": 2,
+				"domain": "googleapis.com"
+			},
+			{
+				"rank": 3,
+				"domain": "facebook.com"
+			},
+			{
+				"rank": 4,
+				"domain": "gstatic.com"
+			},
+			{
+				"rank": 5,
+				"domain": "apple.com"
+			}
+    ]
+  },
+	"meta": {
+		// ...
+	}
 }
 ```
 
@@ -62,23 +75,27 @@ curl "https://api.cloudflare.com/client/v4/radar/datasets?limit=10&datasetType=R
 
 ```json
 {
-  "datasets": [
-    {
-      "id": 213,
-      "title": "Top 1000000 ranking domains",
-      "description": "Unordered top 1000000 from 2023-01-02 to 2023-01-09",
-      "type": "RANKING_BUCKET",
-      "tags": [
-        "GLOBAL",
-        "top_1000000"
-      ],
-      "meta": {
-        "top": 1000000
-      },
-      "alias": "ranking_top_1000000"
-    },
-    ...
-  ]
+  "success": true,
+  "errors": [],
+  "result": {
+		"datasets": [
+			{
+				"id": 213,
+				"title": "Top 1000000 ranking domains",
+				"description": "Unordered top 1000000 from 2023-01-02 to 2023-01-09",
+				"type": "RANKING_BUCKET",
+				"tags": [
+					"GLOBAL",
+					"top_1000000"
+				],
+				"meta": {
+					"top": 1000000
+				},
+				"alias": "ranking_top_1000000"
+			},
+			// ...
+		]
+	}
 }
 ```
 
@@ -97,9 +114,13 @@ curl "https://api.cloudflare.com/client/v4/radar/datasets/download" \
 
 ```json
 {
-  "dataset": {
-    "url": "https://example.com/download"
-  }
+  "success": true,
+  "errors": [],
+  "result": {
+		"dataset": {
+			"url": "https://example.com/download"
+		}
+	}
 }
 ```
 

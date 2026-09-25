@@ -1,9 +1,13 @@
 ---
 pcx_content_type: tutorial
+difficulty: Intermediate
+products:
+  - load-balancing
 title: Perform planned maintenance
 sidebar:
   order: 6
-
+description: >-
+  When you change application settings or add new assets, you will likely want to make these changes on one endpoint at a time. Going endpoint by endpoint reduces the risk of changes and ensures a more consistent user experience.
 ---
 
 When you change application settings or add new assets, you will likely want to make these changes on one endpoint at a time. Going endpoint by endpoint reduces the risk of changes and ensures a more consistent user experience.
@@ -18,6 +22,12 @@ To direct traffic away from your endpoint immediately, [adjust settings on the p
 If you want to divert traffic from an endpoint to prevent it from becoming unhealthy, use [Load Shedding](/load-balancing/additional-options/load-shedding/) instead.
 
 
+:::
+
+:::caution[Existing connections are not terminated]
+When an endpoint becomes unhealthy, Cloudflare Load Balancing stops routing **new** requests to it. However, existing connections (including long-lived WebSocket connections) are **not** terminated — they remain open until they close naturally.
+
+If you need graceful connection draining, use [endpoint drain](#gradual-rotation) to proactively take endpoints out of rotation before maintenance, rather than relying on health check failures alone.
 :::
 
 ## Before you begin

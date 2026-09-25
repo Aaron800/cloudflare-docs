@@ -6,11 +6,20 @@ head:
     content: Direct Upload
 description: Upload your prebuilt assets to Pages and deploy them via the
   Wrangler CLI or the Cloudflare dashboard.
+products:
+  - pages
+
 ---
 
-import { Render } from "~/components";
+import { Render, DashButton } from "~/components";
 
-Direct Upload enables you to upload your prebuilt assets to Pages and deploy them to the Cloudflare global network. This guide will instruct you how to upload your assets using Wrangler or the drag and drop method.
+Direct Upload enables you to upload your prebuilt assets to Pages and deploy them to the Cloudflare global network. You should choose Direct Upload over Git integration if you want to [integrate your own build platform](/pages/how-to/use-direct-upload-with-continuous-integration/) or upload from your local computer.
+
+This guide will instruct you how to upload your assets using Wrangler or the drag and drop method.
+
+:::caution[You cannot switch to Git integration later]
+If you choose Direct Upload, you cannot switch to [Git integration](/pages/get-started/git-integration/) later. You will have to create a new project with Git integration to use automatic deployments.
+:::
 
 ## Prerequisites
 
@@ -25,7 +34,7 @@ After you have your prebuilt assets ready, there are two ways to begin uploading
 
 :::note
 
-Within a Direct Upload project, you can switch between creating deployments with either Wrangler or drag and drop. For existing Git-integrated projects, you can manually create deployments using [`wrangler deploy`](/workers/wrangler/commands/#deploy). However, you cannot use drag and drop on the dashboard with existing Git-integrated projects.
+Within a Direct Upload project, you can switch between creating deployments with either Wrangler or drag and drop. For existing Git-integrated projects, you can manually create deployments using [`wrangler deploy`](/workers/wrangler/commands/general/#deploy). However, you cannot use drag and drop on the dashboard with existing Git-integrated projects.
 
 :::
 
@@ -44,7 +53,7 @@ To begin, install [`npm`](https://docs.npmjs.com/getting-started). Then [install
 
 #### Create your project
 
-Log in to Wrangler with the [`wrangler login` command](/workers/wrangler/commands/#login). Then run the [`pages project create` command](/workers/wrangler/commands/#project-create):
+Log in to Wrangler with the [`wrangler login` command](/workers/wrangler/commands/general/#login). Then run the [`pages project create` command](/workers/wrangler/commands/pages/#pages-project-create):
 
 ```sh
 npx wrangler pages project create
@@ -56,7 +65,7 @@ Subsequent deployments will reuse both of these values (saved in your `node_modu
 
 #### Deploy your assets
 
-From here, you have created an empty project and can now deploy your assets for your first deployment and for all subsequent deployments in your production environment. To do this, run the [`wrangler pages deploy`](/workers/wrangler/commands/#deploy-1) command:
+From here, you have created an empty project and can now deploy your assets for your first deployment and for all subsequent deployments in your production environment. To do this, run the [`wrangler pages deploy`](/workers/wrangler/commands/general/#deploy) command:
 
 ```sh
 npx wrangler pages deploy <BUILD_OUTPUT_DIRECTORY>
@@ -90,13 +99,19 @@ If you would like to streamline the project creation and asset deployment steps,
 
 #### Other useful commands
 
-If you would like to use Wrangler to obtain a list of all available projects for Direct Upload, use [`pages project list`](/workers/wrangler/commands/#project-list):
+If you would like to use Wrangler to obtain a list of all available projects for Direct Upload, use [`pages project list`](/workers/wrangler/commands/pages/#pages-project-list):
 
 ```sh
 npx wrangler pages project list
 ```
 
-If you would like to use Wrangler to obtain a list of all unique preview URLs for a particular project, use [`pages deployment list`](/workers/wrangler/commands/#deployment-list):
+To get the output as JSON for programmatic use or scripting, use the `--json` flag:
+
+```sh
+npx wrangler pages project list --json
+```
+
+If you would like to use Wrangler to obtain a list of all unique preview URLs for a particular project, use [`pages deployment list`](/workers/wrangler/commands/pages/#pages-deployment-list):
 
 ```sh
 npx wrangler pages deployment list
@@ -110,11 +125,12 @@ For step-by-step directions on how to use Wrangler and continuous integration to
 
 To deploy with drag and drop:
 
-1. Log in to the [Cloudflare dashboard](https://dash.cloudflare.com/login).
-2. In **Account Home**, select your account > **Workers & Pages**.
-3. Select **Create application** > **Pages** > **Upload assets**.
-4. Enter your project name in the provided field and drag and drop your assets.
-5. Select **Deploy**.
+1. In the Cloudflare dashboard, go to the **Workers & Pages** page.
+
+   <DashButton url="/?to=/:account/workers-and-pages" />
+2. Select **Create application** > **Get started** > **Drag and drop your files**.
+3. Enter your project name in the provided field and drag and drop your assets.
+4. Select **Deploy site**.
 
 Your project will be served from `<PROJECT_NAME>.pages.dev`. Next drag and drop your build output directory into the uploading frame. Once your files have been successfully uploaded, select **Save and Deploy** and continue to your newly deployed project.
 
@@ -135,7 +151,7 @@ If using the drag and drop method, a red warning symbol will appear next to an a
 
 ### Production branch configuration
 
-<Render file="prod-branch-update" />
+<Render file="prod-branch-update" product="pages" />
 
 ### Functions
 

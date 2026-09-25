@@ -1,11 +1,13 @@
 ---
 pcx_content_type: concept
+description: Improve cache hit rates by sorting query string parameters.
+products:
+  - cache
 source: https://support.cloudflare.com/hc/en-us/articles/206776797-Understanding-Query-String-Sort
 title: Query String Sort
-
+tags:
+  - WordPress
 ---
-
-import { FeatureTable } from "~/components"
 
 **Query String Sort** increases cache-hit rates by first sorting query strings into a consistent order before checking the Cloudflare cache.
 
@@ -24,7 +26,9 @@ would be sorted to:
 
 ## Availability
 
-<FeatureTable id="cache.query_string_sort" />
+|  | Free | Pro | Business | Enterprise |
+| - | - | - | - | - |
+| Availability | No | No | No | Yes |
 
 ***
 

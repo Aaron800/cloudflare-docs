@@ -1,14 +1,17 @@
 ---
 pcx_content_type: navigation
-type: overview
+
 title: Examples
+description: Browse code examples for producing and consuming messages with Cloudflare Queues.
 sidebar:
   order: 5
 head:
   - tag: title
     content: Cloudflare Queues - Examples
+products:
+  - queues
 ---
 
-import { ListExamples } from "~/components";
+import { ResourcesBySelector } from "~/components";
 
-<ListExamples directory="queues/examples/" />
+<ResourcesBySelector directory="queues/examples/" types={["example"]} />

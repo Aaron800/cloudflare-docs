@@ -1,8 +1,15 @@
 ---
-updated: 2024-01-12
-category: 🔐 Access
+reviewed: 2024-01-12
+category: Access
+difficulty: Intermediate
 pcx_content_type: tutorial
+products:
+  - cloudflare-one
 title: Use Microsoft Entra ID Conditional Access policies in Cloudflare Access
+description: >-
+  With Conditional Access in Microsoft Entra ID, administrators can enforce policies on applications and users directly in EntraID.
+tags:
+  - Microsoft Entra ID
 ---
 
 With [Conditional Access](https://learn.microsoft.com/entra/identity/conditional-access/overview) in Microsoft Entra ID (formerly Azure Active Directory), administrators can enforce policies on applications and users directly in Entra ID. Conditional Access has a set of checks that are specialized to Windows and are often preferred by organizations with Windows power users.
@@ -16,7 +23,7 @@ Make sure you have:
 
 ## Set up an identity provider for your application
 
-Refer to [our IdP setup instructions](/cloudflare-one/identity/idp-integration/entra-id/#set-up-entra-id-as-an-identity-provider) for Entra ID.
+Refer to [our IdP setup instructions](/cloudflare-one/integrations/identity-providers/entra-id/#set-up-entra-id-as-an-identity-provider) for Entra ID.
 
 ## Add API permission in Entra ID
 
@@ -31,6 +38,10 @@ Once the base IdP integration is tested and working, grant permission for Cloudf
 4. Select **Microsoft Graph**.
 
 5. Select **Application permissions** and add `Policy.Read.ConditionalAccess`.
+
+   :::note
+   You must select **Application permissions**; delegated permissions will not work for this feature.
+   :::
 
 6. Select **Grant admin consent**.
 
@@ -51,28 +62,36 @@ Once the base IdP integration is tested and working, grant permission for Cloudf
 
 To import your Conditional Access policies into Cloudflare Access:
 
-1. In [Zero Trust](https://one.dash.cloudflare.com), go to **Settings** > **Authentication**.
-2. Find your Microsoft Entra ID integration and select **Edit**.
-3. Enable **Azure AD Policy Sync**.
-4. Select **Save**.
+1. In the [Cloudflare dashboard](https://dash.cloudflare.com/), go to **Zero Trust** > **Access controls** > **Access settings**.
+2. In **Manage your App Launcher**, select **Manage**.
+3. Choose **Login methods**.
+4. Find your Microsoft Entra ID integration and select **Edit**.
+5. Enable **Azure AD Policy Sync**.
+6. Select **Save**.
 
 ## Create an Access application
 
 To enforce your Conditional Access policies on a Cloudflare Access application:
 
-1. In [Zero Trust](https://one.dash.cloudflare.com), go to **Access** > **Applications**.
+1. In the [Cloudflare dashboard](https://dash.cloudflare.com/), go to **Zero Trust** > **Access controls** > **Applications**.
 
-2. Create a new [self-hosted application](/cloudflare-one/applications/configure-apps/self-hosted-apps/).
+2. Select **Create new application**.
 
-3. In **Application domain**, enter the target URL of the protected application.
+3. Select **Self-hosted and private**.
 
-4. For **Identity providers**, select your Microsoft Entra ID integration.
+4. Select **Add public hostname** and enter the target URL of the protected application.
 
-5. Finally, create an [Access policy](/cloudflare-one/policies/access/) using the _Azure AD - Auth context_ selector. For example:
+5. Select **Create new policy** and build an [Access policy](/cloudflare-one/access-controls/policies/) using the _Azure AD - Auth context_ selector. For example:
 
    | Action | Rule type | Selector                | Value                       |
    | ------ | --------- | ----------------------- | --------------------------- |
    | Allow  | Include   | Emails ending in        | `@example.com`              |
    |        | Require   | Azure AD - Auth context | `Require compliant devices` |
+
+6. Add this policy to your application configuration.
+
+7. For **Identity providers**, select your Microsoft Entra ID integration.
+
+8. Follow the remaining [self-hosted application creation steps](/cloudflare-one/access-controls/applications/http-apps/self-hosted-public-app/) to publish the application.
 
 Users will only be allowed access if they pass the Microsoft Entra ID Conditional Access policies associated with this authentication context.

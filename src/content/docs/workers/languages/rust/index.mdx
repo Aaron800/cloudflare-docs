@@ -8,8 +8,12 @@ sidebar:
 head:
   - tag: title
     content: Cloudflare Workers — Rust language support
-description: Write Workers in 100% Rust using the [`workers-rs`crate](https://github.com/cloudflare/workers-rs)
+description: Write Workers in 100% Rust using the [`workers-rs` crate](https://github.com/cloudflare/workers-rs)
+products:
+  - workers
 ---
+
+import { WranglerConfig } from "~/components";
 
 Cloudflare Workers provides support for Rust via the [`workers-rs` crate](https://github.com/cloudflare/workers-rs), which makes [Runtime APIs](/workers/runtime-apis) and [bindings](/workers/runtime-apis/bindings/) to developer platform products, such as [Workers KV](/kv/concepts/how-kv-works/), [R2](/r2/), and [Queues](/queues/), available directly from your Rust code.
 
@@ -49,7 +53,7 @@ Your project will be created in a new directory that you named, in which you wil
 
 ## 2. Develop locally
 
-After you have created your first Worker, run the [`wrangler dev`](/workers/wrangler/commands/#dev) command to start a local server for developing your Worker. This will allow you to test your Worker in development.
+After you have created your first Worker, run the [`wrangler dev`](/workers/wrangler/commands/general/#dev) command to start a local server for developing your Worker. This will allow you to test your Worker in development.
 
 ```sh
 npx wrangler dev
@@ -58,7 +62,7 @@ npx wrangler dev
 If you have not used Wrangler before, it will try to open your web browser to login with your Cloudflare account.
 
 :::note
-If you have issues with this step or you do not have access to a browser interface, refer to the [`wrangler login`](/workers/wrangler/commands/#login) documentation for more information.
+If you have issues with this step or you do not have access to a browser interface, refer to the [`wrangler login`](/workers/wrangler/commands/general/#login) documentation for more information.
 :::
 
 Go to [http://localhost:8787](http://localhost:8787) to review your Worker running. Any changes you make to your code will trigger a rebuild, and reloading the page will show you the up-to-date output of your Worker.
@@ -109,12 +113,20 @@ An object representing the incoming request. This includes methods for accessing
 
 Provides access to Worker [bindings](/workers/runtime-apis/bindings/).
 
-- [`Secret`](https://github.com/cloudflare/workers-rs/blob/e15f88110d814c2d7759b2368df688433f807694/worker/src/env.rs#L92) - Secret value configured in Cloudflare dashboard or using `wrangler secret put`.
-- [`Var`](https://github.com/cloudflare/workers-rs/blob/e15f88110d814c2d7759b2368df688433f807694/worker/src/env.rs#L92) - Environment variable defined in `wrangler.toml`.
-- [`KvStore`](https://docs.rs/worker-kv/latest/worker_kv/struct.KvStore.html) - Workers [KV](/kv/api/) namespace binding.
+- [`Secret`](https://docs.rs/worker/latest/worker/struct.Secret.html) - Secret value configured in Cloudflare dashboard or using `wrangler secret put`.
+- [`Var`](https://docs.rs/worker/latest/worker/type.Var.html) - Environment variable defined in `wrangler.toml`.
+- [`KvStore`](https://docs.rs/worker/latest/worker/kv/struct.KvStore.html) - Workers [KV](/kv/api/) namespace binding.
 - [`ObjectNamespace`](https://docs.rs/worker/latest/worker/durable/struct.ObjectNamespace.html) - [Durable Object](/durable-objects/) binding.
 - [`Fetcher`](https://docs.rs/worker/latest/worker/struct.Fetcher.html) - [Service binding](/workers/runtime-apis/bindings/service-bindings/) to another Worker.
 - [`Bucket`](https://docs.rs/worker/latest/worker/struct.Bucket.html) - [R2](/r2/) Bucket binding.
+- [`D1Database`](https://docs.rs/worker/latest/worker/d1/struct.D1Database.html) - [D1](/d1/) database binding.
+- [`Queue`](https://docs.rs/worker/latest/worker/struct.Queue.html) - [Queues](/queues/) producer binding.
+- [`Ai`](https://docs.rs/worker/latest/worker/struct.Ai.html) - [Workers AI](/workers-ai/) binding.
+- [`Hyperdrive`](https://docs.rs/worker/latest/worker/struct.Hyperdrive.html) - [Hyperdrive](/hyperdrive/) binding.
+- [`AnalyticsEngineDataset`](https://docs.rs/worker/latest/worker/struct.AnalyticsEngineDataset.html) - [Analytics Engine](/analytics/analytics-engine/) binding.
+- [`DynamicDispatcher`](https://docs.rs/worker/latest/worker/struct.DynamicDispatcher.html) - [Dynamic Dispatch](/cloudflare-for-platforms/workers-for-platforms/configuration/dynamic-dispatch/) binding.
+- [`SecretStore`](https://docs.rs/worker/latest/worker/struct.SecretStore.html) - [Secrets Store](/secrets-store/) binding.
+- [`RateLimiter`](https://docs.rs/worker/latest/worker/struct.RateLimiter.html) - [Rate Limiting](/workers/runtime-apis/bindings/rate-limit/) binding.
 
 3. **[`Context`](https://docs.rs/worker/latest/worker/struct.Context.html)**
 
@@ -140,12 +152,11 @@ Preview your Worker at `<YOUR_WORKER>.<YOUR_SUBDOMAIN>.workers.dev`.
 
 :::note
 
-When pushing to your `*.workers.dev` subdomain for the first time, you may see [`523` errors](/support/troubleshooting/cloudflare-errors/troubleshooting-cloudflare-5xx-errors/#error-523-origin-is-unreachable) while DNS is propagating. These errors should resolve themselves after a minute or so.
+When pushing to your `*.workers.dev` subdomain for the first time, you may see [`523` errors](/support/troubleshooting/http-status-codes/cloudflare-5xx-errors/error-523/) while DNS is propagating. These errors should resolve themselves after a minute or so.
 
 :::
 
-After completing these steps, you will have a basic Rust-based Worker deployed. From here, you can add crate
-dependencies and write code in Rust to implement your Worker application. If you would like to know more about the inner workings of how Rust compiled to Wasm is supported by Workers, the next section outlines the libraries and tools involved.
+After completing these steps, you will have a basic Rust-based Worker deployed. From here, you can add create dependencies and write code in Rust to implement your Worker application. If you would like to know more about the inner workings of how Rust compiled to Wasm is supported by Workers, the next section outlines the libraries and tools involved.
 
 ## How this deployment works
 
@@ -155,7 +166,7 @@ Wasm Workers are invoked from a JavaScript entrypoint script which is created au
 
 To access platform features such as bindings, Wasm Workers must be able to access methods from the JavaScript runtime API.
 
-This interoperability is achieved using [`wasm-bindgen`](https://rustwasm.github.io/wasm-bindgen/), which provides the glue code needed to import runtime APIs to, and export event handlers from, the Wasm module. `wasm-bindgen` also provides [`js-sys`](https://docs.rs/js-sys/latest/js_sys/), which implements types for interacting with JavaScript objects. In practice, this is an implementation detail, as `workers-rs`'s API handles conversion to and from JavaScript objects, and interaction with imported JavaScript runtime APIs for you.
+This interoperability is achieved using [`wasm-bindgen`](https://wasm-bindgen.github.io/wasm-bindgen/), which provides the glue code needed to import runtime APIs to, and export event handlers from, the Wasm module. `wasm-bindgen` also provides [`js-sys`](https://docs.rs/js-sys/latest/js_sys/), which implements types for interacting with JavaScript objects. In practice, this is an implementation detail, as `workers-rs`'s API handles conversion to and from JavaScript objects, and interaction with imported JavaScript runtime APIs for you.
 
 :::note
 
@@ -194,7 +205,7 @@ import { myFunction } from "path/to/mylib.js";
 
 ### Async (`wasm-bindgen-futures`)
 
-[`wasm-bindgen-futures`](https://rustwasm.github.io/wasm-bindgen/api/wasm_bindgen_futures/) (part of the `wasm-bindgen` project) provides interoperability between Rust
+[`wasm-bindgen-futures`](https://wasm-bindgen.github.io/wasm-bindgen/api/wasm_bindgen_futures/) (part of the `wasm-bindgen` project) provides interoperability between Rust
 Futures and JavaScript Promises. `workers-rs` invokes the entire event handler function using `spawn_local`, meaning that you can program using async Rust, which is turned
 into a single JavaScript Promise and run on the JavaScript event loop. Calls to imported JavaScript runtime APIs are automatically converted to Rust Futures that can be invoked from async Rust functions.
 
@@ -206,15 +217,11 @@ To run the resulting Wasm binary on Workers, `workers-rs` includes a build tool 
 2. Invokes `web-pack` to minify and bundle the JavaScript code.
 3. Outputs a directory structure that Wrangler can use to bundle and deploy the final Worker.
 
-`worker-build` is invoked by default in the template project using a custom build command specified in `wrangler.toml`.
+`worker-build` is invoked by default in the template project using a custom build command specified in the `wrangler.toml` file.
 
 ### Binary Size (`wasm-opt`)
 
 Unoptimized Rust Wasm binaries can be large and may exceed Worker bundle size limits or experience long startup times. The template project pre-configures several useful size optimizations in your `Cargo.toml` file:
-
-import { WranglerConfig } from "~/components";
-
-<WranglerConfig>
 
 ```toml
 [profile.release]
@@ -223,10 +230,8 @@ strip = true
 codegen-units = 1
 ```
 
-</WranglerConfig>
-
 Finally, `worker-bundle` automatically invokes [`wasm-opt`](https://github.com/brson/wasm-opt-rs) to further optimize binary size before upload.
 
 ## Related resources
 
-- [Rust Wasm Book](https://rustwasm.github.io/book/introduction.html)
+- [Rust Wasm Book](https://rustwasm.github.io/docs/book/)

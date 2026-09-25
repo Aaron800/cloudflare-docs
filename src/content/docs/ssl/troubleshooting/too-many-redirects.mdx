@@ -1,13 +1,15 @@
 ---
 title: ERR_TOO_MANY_REDIRECTS
 pcx_content_type: troubleshooting
+products:
+  - ssl
 sidebar:
   order: 3
 head: []
 description: Learn how to troubleshoot ERR_TOO_MANY_REDIRECTS when using Cloudflare SSL/TLS.
 ---
 
-After you [add a new domain](/fundamentals/setup/manage-domains/add-site/) to Cloudflare, your visitors' browsers might display `ERR_TOO_MANY_REDIRECTS` or `The page isn’t redirecting properly` errors.
+After you [add a new domain](/fundamentals/manage-domains/add-site/) to Cloudflare, your visitors' browsers might display `ERR_TOO_MANY_REDIRECTS` or `The page isn’t redirecting properly` errors.
 
 This error occurs when visitors get stuck in a redirect loop.
 
@@ -28,7 +30,7 @@ end
 This error is commonly caused by:
 
 - A misconfiguration of your [SSL/TLS Encryption mode](#encryption-mode-misconfigurations).
-- Various settings in [**SSL/TLS** > **Edge Certificates**](#edge-certificate-settings).
+- Various settings on the [**Edge Certificates**](#edge-certificate-settings) page.
 - A misconfigured [redirect rule](#redirect-rules).
 
 :::note
@@ -67,7 +69,7 @@ end
 
 <br />
 
-To solve this issue, either remove HTTPS redirects from your origin server or update your SSL/TLS Encryption Mode to be [**Full**](/ssl/origin-configuration/ssl-modes/full/) or higher (requires an SSL certificate configured at your origin server).
+To solve this issue, either remove HTTPS redirects from your origin server or update your SSL/TLS Encryption Mode to be [**Full**](/ssl/origin-configuration/ssl-modes/full/) or higher (requires an SSL certificate configured at your origin server). To enforce HTTPS at the Cloudflare edge without setting up redirects at your origin, refer to [Enforce HTTPS connections](/ssl/edge-certificates/encrypt-visitor-traffic/).
 
 ### Full or Full (strict) encryption mode
 
@@ -174,6 +176,6 @@ To solve this issue, review your various [redirect rules](/rules/url-forwarding/
 
 :::note
 
-To reduce the potential for redirect loops and [mixed content errors](/ssl/troubleshooting/mixed-content-errors/), Cloudflare recommends WordPress users to install the [Cloudflare WordPress plugin](https://wordpress.org/plugins/cloudflare/) at their origin web server and enable the _Automatic HTTPS rewrites_ option within the plugin. Alternatively, Cloudflare recommends the [SSL insecure content fixer](https://en-gb.wordpress.org/plugins/ssl-insecure-content-fixer/) or [Really Simple SSL plugin](https://en-gb.wordpress.org/plugins/really-simple-ssl/).
+To reduce the potential for redirect loops and [mixed content errors](/ssl/troubleshooting/mixed-content-errors/), Cloudflare recommends WordPress users to install the [Cloudflare WordPress plugin](https://wordpress.org/plugins/cloudflare/) at their origin web server and enable the _Automatic HTTPS rewrites_ option within the plugin.
 
 :::

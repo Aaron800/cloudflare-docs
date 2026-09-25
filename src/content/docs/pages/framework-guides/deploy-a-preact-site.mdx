@@ -1,6 +1,9 @@
 ---
 pcx_content_type: how-to
 title: Preact
+description: Deploy a Preact application to Cloudflare Pages.
+products:
+  - pages
 ---
 
 import { Render } from "~/components";
@@ -25,20 +28,13 @@ During initialization, you can accept the `Prerender app (SSG)?` option to have 
 
 :::
 
-<Render file="tutorials-before-you-start" />
+<Render file="tutorials-before-you-start" product="pages" />
 
-<Render file="framework-guides/create-github-repository" />
+<Render file="framework-guides/create-github-repository" product="pages" />
 
 ## Deploy with Cloudflare Pages
 
-To deploy your site to Pages:
-
-1. Log in to the [Cloudflare dashboard](https://dash.cloudflare.com/) and select your account.
-2. In Account Home, select **Workers & Pages** > **Create application** > **Pages** > **Connect to Git**.
-
-You will be asked to authorize access to your GitHub account if you have not already done so. Cloudflare needs this so that it can monitor and deploy your projects from the source. You may narrow access to specific repositories if you prefer; however, you will have to manually update this list [within your GitHub settings](https://github.com/settings/installations) when you want to add more repositories to Cloudflare Pages.
-
-Select the new GitHub repository that you created and, in the **Set up builds and deployments** section, provide the following information:
+<Render file="deploy-to-pages-steps-no-preset" product="pages" />
 
 <div>
 
@@ -68,4 +64,8 @@ For the complete guide to deploying your first site to Cloudflare Pages, refer t
 
 :::
 
-<Render file="framework-guides/learn-more" params={{ one: "Preact" }} />
+<Render
+	file="framework-guides/learn-more"
+	product="pages"
+	params={{ one: "Preact" }}
+/>

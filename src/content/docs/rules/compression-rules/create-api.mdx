@@ -1,11 +1,12 @@
 ---
-title: Create a rule via API
+title: Create a compression rule via API
 pcx_content_type: how-to
+description: Create compression rules using the Rulesets API.
+products:
+  - rules
 sidebar:
   order: 2
-head:
-  - tag: title
-    content: Create a compression rule via API
+  label: Create a rule via API
 ---
 
 import { Render } from "~/components";
@@ -24,7 +25,11 @@ When creating a compression rule via API, make sure you:
 
 <Render
 	file="rules-creation-workflow"
-	params={{ one: "a compression rule", two: "http_response_compression" }}
+	product="rules"
+	params={{
+		ruleName: "a compression rule",
+		phaseName: "http_response_compression",
+	}}
 />
 
 ## Examples

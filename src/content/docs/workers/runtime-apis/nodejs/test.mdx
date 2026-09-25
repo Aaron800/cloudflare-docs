@@ -1,12 +1,14 @@
 ---
 pcx_content_type: configuration
 title: test
-
+description: Use the Node.js test module MockTracker API in Cloudflare Workers for tracking and managing mock objects.
+products:
+  - workers
 ---
 
-import { Render } from "~/components"
+import { Render } from "~/components";
 
-<Render file="nodejs-compat-howto" />
+<Render file="nodejs-compat-howto" product="workers" />
 
 ## `MockTracker`
 
@@ -20,7 +22,7 @@ const fn = mock.fn();
 fn(1,2,3);  // does nothing... but
 
 console.log(fn.mock.callCount());  // Records how many times it was called
-console.log(fn.mock.calls[0].arguments));  // Recoreds the arguments that were passed each call
+console.log(fn.mock.calls[0].arguments);  // Records the arguments that were passed each call
 ```
 
 The full `MockTracker` API is documented in the [Node.js documentation for `MockTracker`](https://nodejs.org/docs/latest/api/test.html#class-mocktracker).

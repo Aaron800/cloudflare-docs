@@ -1,13 +1,16 @@
 ---
 pcx_content_type: how-to
+products:
+  - speed
 title: Speed Brain
-sidebar: 
+sidebar:
   order: 9
   badge:
     text: Beta
+description: Learn how Speed Brain enhances web performance by prefetching likely next pages, improving metrics like LCP and TTFB.
 ---
 
-import { FeatureTable, TabItem, Tabs } from "~/components";
+import { TabItem, Tabs, APIRequest, DashButton } from "~/components";
 
 Speed Brain is a tool for improving web page performance by prefetching the most likely next navigation.
 
@@ -15,13 +18,16 @@ Speed Brain is a tool for improving web page performance by prefetching the most
 
 ## Availability
 
-<FeatureTable id="speed.speed_brain" />
+|  | Free | Pro | Business | Enterprise |
+| - | - | - | - | - |
+| Availability | Enabled by default | Yes | Yes | Yes |
 
 ---
 
 ## Requirements
 
 Speed Brain works under the following conditions:
+
 - The Speed Brain feature is enabled in Cloudflare.
 - The browser of the web page visitor is using a Chromium-based browser version 121 or later.
 - The web page requested by the prefetch is eligible for cache.
@@ -37,21 +43,21 @@ By prefetching pages that the browser considers likely to be navigated to, Speed
 
 ## How Speed Brain works
 
-When Cloudflare's Speed Brain feature is enabled, an HTTP header called `Speculation-Rules` is added to web page responses. The value for this header is an URL that hosts an opinionated Speculation-Rules configuration. This configuration instructs the browser to consider prefetching any future navigations with a `conservative` [eagerness](https://developer.chrome.com/docs/web-platform/prerender-pages#eagerness).
+When Cloudflare's Speed Brain feature is enabled, an HTTP header called `Speculation-Rules` is added to web page responses. The value for this header is a URL that hosts an opinionated Speculation-Rules configuration. This configuration instructs the browser to consider prefetching any future navigations with a `conservative` [eagerness](https://developer.chrome.com/docs/web-platform/prerender-pages#eagerness).
 
 The configuration looks like this:
 
 ```json
 {
-  "prefetch": [{
-    "source": "document",
-    "where": {
-      "and": [
-        { "href_matches": "/*", "relative_to": "document" },
-      ]
-    },
-    "eagerness": "conservative"
-  }]
+	"prefetch": [
+		{
+			"source": "document",
+			"where": {
+				"and": [{ "href_matches": "/*", "relative_to": "document" }]
+			},
+			"eagerness": "conservative"
+		}
+	]
 }
 ```
 
@@ -77,35 +83,36 @@ Speed Brain is available in Cloudflare's **Speed** tab of the dashboard and also
 
 To enable or disable **Speed Brain** in the dashboard:
 
-1. Log in to your [Cloudflare account](https://dash.cloudflare.com), select your account and go to a specific domain.
-2. Go to **Speed** > **Optimization** > **Content Optimization**.
+1. In the Cloudflare dashboard, go to the **Speed** > **Settings** page.
+
+   <DashButton url="/?to=/:account/:zone/speed/optimization" />
+
+2. Go to **Content Optimization**.
 3. Toggle **Speed Brain** to **On** or **Off**.
 
 </TabItem> <TabItem label="API">
 
 Use the following `PATCH` request to enable Speed Brain:
 
-```bash
-curl --request PATCH \
-"https://api.cloudflare.com/client/v4/zones/{zone_id}/settings/speed_brain" \
---header "Authorization: Bearer <API_TOKEN>" \
---header "Content-Type: application/json" \
---data '{
-  "value":"on"
-  }'
-```
+<APIRequest
+  path="/zones/{zone_id}/settings/speed_brain"
+  method="PATCH"
+  json={{
+    value: "on"
+  }}
+/>
 
 To disable Speed Brain, set `value:` to `"off"`.
 
 </TabItem> <TabItem label="Terraform">
 
-You can also configure Speed Brain using Terraform. For more details, refer to the [`cloudflare_zone_settings_override`](https://registry.terraform.io/providers/cloudflare/cloudflare/4.48.0/docs/resources/zone_settings_override) resource in the Terraform documentation.
+You can also configure Speed Brain using Terraform. For more details, refer to the `cloudflare_zone_settings_override` resource in the [Terraform documentation](https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs).
 
 </TabItem> </Tabs>
 
 ## Caveats
 
-- Since prefetch responses are not guaranteed to be rendered by the browser, Speed Brain includes two safeguards to minimize the risk of [unsafe prefetching](https://developer.mozilla.org/en-US/docs/Web/API/Speculation_Rules_API#unsafe_prefetching): 
+- Since prefetch responses are not guaranteed to be rendered by the browser, Speed Brain includes two safeguards to minimize the risk of [unsafe prefetching](https://developer.mozilla.org/en-US/docs/Web/API/Speculation_Rules_API#unsafe_prefetching):
 
   - Speed Brain will not prefetch on routes that run Workers. Without this safeguard, prefetch requests could inadvertently run Worker logic that assumes the incoming request is a normal (that is, not a prefetch) request. An example of this could be an incrementing page view counter running in a Worker. A page view counter should not increment if the page is not actually rendered in the browser.
 
@@ -113,6 +120,6 @@ You can also configure Speed Brain using Terraform. For more details, refer to t
 
 - If origin server responses include the `Speculation-Rules` header, it will not be overridden.
 
-- Speed Brain will not work with restrictive [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/script-src) configurations using `strict-dynamic` or `nonce-{hash}` attributes.
+- Speed Brain will not work with restrictive [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/script-src) configurations using `strict-dynamic` or `nonce-{hash}` attributes.
 
-- Currently, Speed Brain is not compatible with websites that use or rely on `pages.dev`. 
+- Currently, Speed Brain is not compatible with websites that use or rely on `pages.dev`.

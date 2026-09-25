@@ -1,10 +1,13 @@
 ---
 title: WritableStream DefaultWriter
+description: Use WritableStreamDefaultWriter in Workers to write data directly to a WritableStream.
 pcx_content_type: configuration
 head:
   - tag: title
     content: WritableStreamDefaultWriter
 
+products:
+  - workers
 ---
 
 {/* <!-- The space in the title was introduced to create a pleasing line-break in the title in the sidebar. --> */}
@@ -50,7 +53,7 @@ writeArrayToStream([1, 2, 3, 4, 5], writableStream)
 
   :::caution[Warning]
 
-  Any data not yet written is lost upon abort. 
+  Any data not yet written is lost upon abort.
   :::
 
 * `close()` : Promise\<void>

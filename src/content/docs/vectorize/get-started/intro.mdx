@@ -1,13 +1,17 @@
 ---
 title: Introduction to Vectorize
+description: Create your first Vectorize index, connect a Worker, and run a similarity search.
 pcx_content_type: get-started
 sidebar:
   order: 2
+products:
+  - vectorize
+  - workers
 ---
 
-import { Render, PackageManagers } from "~/components";
+import { Render, PackageManagers, WranglerConfig } from "~/components";
 
-<Render file="vectorize-ga" />
+<Render file="vectorize-ga" product="vectorize" />
 
 Vectorize is Cloudflare's vector database. Vector databases allow you to use machine learning (ML) models to perform semantic search, recommendation, classification and anomaly detection tasks, as well as provide context to LLMs (Large Language Models).
 
@@ -50,11 +54,10 @@ Create a new project named `vectorize-tutorial` by running:
 />
 
 <Render
-	file="c3-post-run-steps"
+	file="c3-post-run-steps-hello-world"
 	product="workers"
 	params={{
-		category: "hello-world",
-		type: "Hello World Worker",
+		type: "Worker only",
 		lang: "TypeScript",
 	}}
 />
@@ -62,11 +65,11 @@ Create a new project named `vectorize-tutorial` by running:
 This will create a new `vectorize-tutorial` directory. Your new `vectorize-tutorial` directory will include:
 
 - A `"Hello World"` [Worker](/workers/get-started/guide/#3-write-code) at `src/index.ts`.
-- A [`wrangler.toml`](/workers/wrangler/configuration/) configuration file. `wrangler.toml` is how your `vectorize-tutorial` Worker will access your index.
+- A [`wrangler.jsonc`](/workers/wrangler/configuration/) configuration file. `wrangler.jsonc` is how your `vectorize-tutorial` Worker will access your index.
 
 :::note
 
-If you are familiar with Cloudflare Workers, or initializing projects in a Continuous Integration (CI) environment, initialize a new project non-interactively by setting `CI=true` as an environmental variable when running `create cloudflare@latest`.
+If you are familiar with Cloudflare Workers, or initializing projects in a Continuous Integration (CI) environment, initialize a new project non-interactively by setting `CI=true` as an [environmental variable](/workers/configuration/environment-variables/) when running `create cloudflare@latest`.
 
 For example: `CI=true npm create cloudflare@latest vectorize-tutorial --type=simple --git --ts --deploy=false` will create a basic "Hello World" project ready to build on.
 
@@ -82,7 +85,7 @@ To create your first Vectorize index, change into the directory you just created
 cd vectorize-tutorial
 ```
 
-<Render file="vectorize-legacy" />
+<Render file="vectorize-legacy" product="vectorize" />
 
 To create an index, you will need to use the `wrangler vectorize create` command and provide a name for the index. A good index name is:
 
@@ -92,7 +95,7 @@ To create an index, you will need to use the `wrangler vectorize create` command
 
 In addition, you will need to define both the `dimensions` of the vectors you will store in the index, as well as the distance `metric` used to determine similar vectors when creating the index. A `metric` can be euclidean, cosine, or dot product. **This configuration cannot be changed later**, as a vector database is configured for a fixed vector configuration.
 
-<Render file="vectorize-wrangler-version" />
+<Render file="vectorize-wrangler-version" product="vectorize" />
 
 Run the following `wrangler vectorize` command:
 
@@ -114,18 +117,21 @@ The command above will create a new vector database, and output the [binding](/w
 
 ## 3. Bind your Worker to your index
 
-You must create a binding for your Worker to connect to your Vectorize index. [Bindings](/workers/runtime-apis/bindings/) allow your Workers to access resources, like Vectorize or R2, from Cloudflare Workers. You create bindings by updating the worker's `wrangler.toml` file.
+You must create a binding for your Worker to connect to your Vectorize index. [Bindings](/workers/runtime-apis/bindings/) allow your Workers to access resources, like Vectorize or R2, from Cloudflare Workers. You create bindings by updating the worker's Wrangler file.
 
-To bind your index to your Worker, add the following to the end of your `wrangler.toml` file:
-
-import { WranglerConfig } from "~/components";
+To bind your index to your Worker, add the following to the end of your Wrangler file:
 
 <WranglerConfig>
 
-```toml
-[[vectorize]]
-binding = "VECTORIZE" # available in your Worker on env.VECTORIZE
-index_name = "tutorial-index"
+```jsonc
+{
+	"vectorize": [
+		{
+			"binding": "VECTORIZE", // available in your Worker on env.VECTORIZE
+			"index_name": "tutorial-index"
+		}
+	]
+}
 ```
 
 </WranglerConfig>
@@ -274,7 +280,7 @@ export default {
 
 In the code above, you:
 
-1. Define a binding to your Vectorize index from your Workers code. This binding matches the `binding` value you set in `wrangler.toml` under `[[vectorize]]`.
+1. Define a binding to your Vectorize index from your Workers code. This binding matches the `binding` value you set in the `wrangler.jsonc` file under the `"vectorise"` key.
 2. Specify a set of example vectors that you will query against in the next step.
 3. Insert those vectors into the index and confirm it was successful.
 

@@ -1,9 +1,19 @@
 ---
 pcx_content_type: how-to
 title: Set up Evaluations
+description: Create datasets, select evaluators, and run evaluations for your AI Gateway logs.
 sidebar:
   order: 2
+  hidden: true
+products:
+  - ai-gateway
 ---
+
+import { Aside } from "~/components";
+
+<Aside type="caution" title="Deprecated">
+	Evaluations are deprecated and no longer supported for new accounts.
+</Aside>
 
 This guide walks you through the process of setting up an evaluation in AI Gateway. These steps are done in the [Cloudflare dashboard](https://dash.cloudflare.com/).
 
@@ -23,6 +33,24 @@ You can manage datasets by selecting **Manage datasets** from the Logs tab.
 Please keep in mind that datasets currently use `AND` joins, so there can only be one item per filter (for example, one model or one provider). Future updates will allow more flexibility in dataset creation.
 
 :::
+
+### List of available filters
+
+| Filter category | Filter options                                               | Filter by description                     |
+| --------------- | ------------------------------------------------------------ | ----------------------------------------- |
+| Status          | error, status                                                | error type or status.                     |
+| Cache           | cached, not cached                                           | based on whether they were cached or not. |
+| Provider        | specific providers                                           | the selected AI provider.                 |
+| AI Models       | specific models                                              | the selected AI model.                    |
+| Cost            | less than, greater than                                      | cost, specifying a threshold.             |
+| Request type    | Workers AI Binding, WebSockets                               | the type of request.                      |
+| Tokens          | Total tokens, Tokens In, Tokens Out                          | token count (less than or greater than).  |
+| Duration        | less than, greater than                                      | request duration.                         |
+| Feedback        | equals, does not equal (thumbs up, thumbs down, no feedback) | feedback type.                            |
+| Metadata Key    | equals, does not equal                                       | specific metadata keys.                   |
+| Metadata Value  | equals, does not equal                                       | specific metadata values.                 |
+| Log ID          | equals, does not equal                                       | a specific Log ID.                        |
+| Event ID        | equals, does not equal                                       | a specific Event ID.                      |
 
 ## 2. Select evaluators
 
@@ -53,6 +81,6 @@ While datasets automatically update based on filters, evaluations do not. You wi
 
 Use these insights to optimize based on your application's priorities. Based on the results, you may choose to:
 
-- Change the model or [provider](/ai-gateway/providers/)
+- Change the model or [provider](/ai-gateway/usage/providers/)
 - Adjust your prompts
 - Explore further optimizations, such as setting up [Retrieval Augmented Generation (RAG)](/reference-architecture/diagrams/ai/ai-rag/)

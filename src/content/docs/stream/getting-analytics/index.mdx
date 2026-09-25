@@ -1,10 +1,14 @@
 ---
 pcx_content_type: navigation
 title: Analytics
+description: Access server-side video analytics for Cloudflare Stream via the dashboard or GraphQL API.
 sidebar:
   order: 8
+products:
+  - stream
 
 ---
+import { DashButton } from "~/components";
 
 Stream provides server-side analytics that can be used to:
 
@@ -12,6 +16,11 @@ Stream provides server-side analytics that can be used to:
 * Identify where content is viewed from and when it is viewed.
 * Understand which creators on your platform are publishing the most viewed content, and analyze trends.
 
-You can access data via the [Stream dashboard](https://dash.cloudflare.com/?to=/:account/stream/analytics) or via the [GraphQL Analytics API](/stream/getting-analytics/fetching-bulk-analytics).
+You can access data on either:
+- The Stream **Analytics** page of the Cloudflare dashboard.
+
+   <DashButton url="/?to=/:account/stream/analytics" />
+
+- The [GraphQL Analytics API](/stream/getting-analytics/fetching-bulk-analytics).
 
 Users will need the **Analytics** permission to access analytics via Dash or GraphQL.

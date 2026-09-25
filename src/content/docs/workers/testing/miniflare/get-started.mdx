@@ -1,7 +1,13 @@
 ---
-order: 1
+sidebar:
+  order: 2
 title: Get Started
+description: Install and configure the Miniflare API to dispatch events and test Cloudflare Workers locally.
+products:
+  - workers
 ---
+
+import { PackageManagers } from "~/components";
 
 The Miniflare API allows you to dispatch events to workers without making actual HTTP requests, simulate connections between Workers, and interact with local emulations of storage products like [KV](/workers/testing/miniflare/storage/kv), [R2](/workers/testing/miniflare/storage/r2), and [Durable Objects](/workers/testing/miniflare/storage/durable-objects). This makes it great for writing tests, or other advanced use cases where you need finer-grained control.
 
@@ -9,9 +15,7 @@ The Miniflare API allows you to dispatch events to workers without making actual
 
 Miniflare is installed using `npm` as a dev dependency:
 
-```sh
-$ npm install -D miniflare
-```
+<PackageManagers pkg="miniflare" dev />
 
 ## Usage
 
@@ -103,46 +107,46 @@ to workers respectively:
 import { Miniflare } from "miniflare";
 
 const mf = new Miniflare({
+	modules: true,
 	script: `
-  export default {
-    let lastScheduledController;
-    let lastQueueBatch;
-    async fetch(request, env, ctx) {
-      const { pathname } = new URL(request.url);
-      if (pathname === "/scheduled") {
-        return Response.json({
-          scheduledTime: lastScheduledController?.scheduledTime,
-          cron: lastScheduledController?.cron,
-        });
-      } else if (pathname === "/queue") {
-        return Response.json({
-          queue: lastQueueBatch.queue,
-          messages: lastQueueBatch.messages.map((message) => ({
-            id: message.id,
-            timestamp: message.timestamp.getTime(),
-            body: message.body,
-            bodyType: message.body.constructor.name,
-          })),
-        });
-      } else if (pathname === "/get-url") {
-        return new Response(request.url);
-      } else {
-        return new Response(null, { status: 404 });
-      }
-    },
-    async scheduled(controller, env, ctx) {
-      lastScheduledController = controller;
-      if (controller.cron === "* * * * *") controller.noRetry();
-    },
-    async queue(batch, env, ctx) {
-      lastQueueBatch = batch;
-      if (batch.queue === "needy") batch.retryAll();
-      for (const message of batch.messages) {
-        if (message.id === "perfect") message.ack();
-      }
-    }
-  }
-  `,
+	let lastScheduledController;
+	let lastQueueBatch;
+	export default {
+		async fetch(request, env, ctx) {
+			const { pathname } = new URL(request.url);
+			if (pathname === "/scheduled") {
+				return Response.json({
+					scheduledTime: lastScheduledController?.scheduledTime,
+					cron: lastScheduledController?.cron,
+				});
+			} else if (pathname === "/queue") {
+				return Response.json({
+					queue: lastQueueBatch.queue,
+					messages: lastQueueBatch.messages.map((message) => ({
+					id: message.id,
+					timestamp: message.timestamp.getTime(),
+					body: message.body,
+					bodyType: message.body.constructor.name,
+					})),
+				});
+			} else if (pathname === "/get-url") {
+				return new Response(request.url);
+			} else {
+				return new Response(null, { status: 404 });
+			}
+		},
+		async scheduled(controller, env, ctx) {
+			lastScheduledController = controller;
+			if (controller.cron === "* * * * *") controller.noRetry();
+		},
+		async queue(batch, env, ctx) {
+			lastQueueBatch = batch;
+			if (batch.queue === "needy") batch.retryAll();
+			for (const message of batch.messages) {
+				if (message.id === "perfect") message.ack();
+			}
+		}
+	}`,
 });
 
 const res = await mf.dispatchFetch("http://localhost:8787/", {
@@ -150,14 +154,16 @@ const res = await mf.dispatchFetch("http://localhost:8787/", {
 });
 console.log(await res.text()); // Hello Miniflare!
 
+const worker = await mf.getWorker();
+
 const scheduledResult = await worker.scheduled({
 	cron: "* * * * *",
 });
 console.log(scheduledResult); // { outcome: "ok", noRetry: true });
 
 const queueResult = await worker.queue("needy", [
-	{ id: "a", timestamp: new Date(1000), body: "a" },
-	{ id: "b", timestamp: new Date(2000), body: { b: 1 } },
+	{ id: "a", timestamp: new Date(1000), body: "a", attempts: 1 },
+	{ id: "b", timestamp: new Date(2000), body: { b: 1 }, attempts: 1 },
 ]);
 console.log(queueResult); // { outcome: "ok", retryAll: true, ackAll: false, explicitRetries: [], explicitAcks: []}
 ```
@@ -190,7 +196,7 @@ console.log("Listening on :5000");
 #### `Request#cf` Object
 
 By default, Miniflare will fetch the `Request#cf` object from a trusted
-Cloudflare endpoint. You can disable this behaviour, using the `cf` option:
+Cloudflare endpoint and cache it to `node_modules/.mf/cf.json`. You can disable this behaviour, using the `cf` option:
 
 ```js
 const mf = new Miniflare({
@@ -205,6 +211,20 @@ const mf = new Miniflare({
 	cf: "cf.json",
 });
 ```
+
+You can also control this behaviour using [system environment variables](/workers/wrangler/system-environment-variables/), which is useful when you are not using the Miniflare API directly (for example, when running `wrangler dev`):
+
+```sh
+# Disable cf fetching entirely (uses fallback data)
+export CLOUDFLARE_CF_FETCH_ENABLED=false
+npx wrangler dev
+
+# Use a custom cache location for cf.json
+export CLOUDFLARE_CF_FETCH_PATH=/tmp/.cf-cache.json
+npx wrangler dev
+```
+
+The explicit `cf` option in the Miniflare API takes precedence over both environment variables.
 
 ### HTTPS Server
 
@@ -366,6 +386,8 @@ const res = await mf.dispatchFetch("http://localhost:8787/", {
   headers: { Authorization: "Bearer ..." },
 });
 const text = await res.text();
+
+const worker = await mf.getWorker();
 
 // Dispatch "scheduled" event to worker
 const scheduledResult = await worker.scheduled({ cron: "30 * * * *" })

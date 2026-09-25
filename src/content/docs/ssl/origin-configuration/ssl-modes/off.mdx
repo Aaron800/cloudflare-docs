@@ -1,12 +1,14 @@
 ---
 pcx_content_type: reference
+products:
+  - ssl
 title: Off (no encryption)
 sidebar:
   order: 1
 head:
   - tag: title
     content: Off - SSL/TLS encryption modes
-description: No encryption is used for traffic between browsers and Cloudflare or between Cloudflare and origins. Everything is cleartext HTTP.
+description: No encryption is used for traffic between visitors and Cloudflare or between Cloudflare and origins. Everything is cleartext HTTP.
 ---
 
 import { Render, TabItem, Tabs } from "~/components";
@@ -17,7 +19,7 @@ Setting your encryption mode to **Off (not recommended)** redirects any HTTPS re
     flowchart LR
         accTitle: No SSL/TLS Encryption
         accDescr: With an encryption mode of Off, your application does not encrypt traffic between the visitor and Cloudflare or between Cloudflare and your server.
-        A[Browser] <--Unencrypted--> B((Cloudflare))<--Unencrypted--> C[(Origin server)]
+        A[Visitor] <--Unencrypted--> B((Cloudflare))<--Unencrypted--> C[(Origin server)]
 ```
 
 ## Use when
@@ -28,11 +30,11 @@ Cloudflare does not recommend setting your encryption mode to **Off**.
 
 <Tabs syncKey="dashPlusAPI"> <TabItem label="Dashboard">
 
-<Render file="change-encryption-mode-dash" />
+<Render file="change-encryption-mode-dash" product="ssl" />
 
 </TabItem> <TabItem label="API">
 
-<Render file="change-encryption-mode-api" />
+<Render file="change-encryption-mode-api" product="ssl" />
 
 </TabItem> </Tabs>
 
@@ -48,4 +50,4 @@ When you set your encryption mode to **Off**, your application:
 
 When you set your SSL/TLS encryption mode to **Off**, you will not see the options for [**Always Use HTTPS**](/ssl/edge-certificates/additional-options/always-use-https/) or [**Onion Routing**](/network/onion-routing/).
 
-<Render file="ssl-mode-no-aop" /> <br />
+<Render file="ssl-mode-no-aop" product="ssl" /> <br />

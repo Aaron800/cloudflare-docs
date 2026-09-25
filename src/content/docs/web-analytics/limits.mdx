@@ -1,5 +1,8 @@
 ---
 pcx_content_type: reference
+description: Rate limits and data retention for Web Analytics.
+products:
+  - web-analytics
 title: Limits
 sidebar:
   order: 6
@@ -19,6 +22,10 @@ Cloudflare limits the number of sites for which you can track web analytics when
 | ------------------------------ | -------- |
 | Not proxied through Cloudflare | 10       |
 | Proxied through Cloudflare     | No limit |
+
+:::note
+To provide a reliable and fast experience, viewing aggregate data is limited to 1,000 websites in parallel in the dashboard. Customers with large volumes of tracked websites can workaround this restriction by selecting specific websites or using the GraphQL API to extract data.
+:::
 
 ## Rules limits
 

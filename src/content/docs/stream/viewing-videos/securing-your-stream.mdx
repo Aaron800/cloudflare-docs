@@ -1,9 +1,14 @@
 ---
 pcx_content_type: how-to
 title: Secure your Stream
+description: Restrict access to Cloudflare Stream videos using signed URLs and tokens.
 sidebar:
   order: 4
+products:
+  - stream
 ---
+
+import { TypeScriptExample } from "~/components";
 
 ## Signed URLs / Tokens
 
@@ -17,7 +22,7 @@ Here are some common use cases for using signed URLs:
 
 ### Making a video require signed URLs
 
-Since video ids are effectively public within signed URLs, you will need to turn on `requireSignedURLs` on for your videos. This option will prevent any public links, such as `watch.cloudflarestream.com/{video_uid}`, from working.
+Turn on `requireSignedURLs` to protect a video using signed URLs. This option will prevent _any public links_, such as `customer-<CODE>.cloudflarestream.com/<VIDEO_ID>/watch` or the built-in player, from working.
 
 Restricting viewing can be done by updating the video's metadata.
 
@@ -43,17 +48,38 @@ Response:
 }
 ```
 
-## Two Ways to Generate Signed Tokens
+#### Workers binding
 
-You can program your app to generate token in two ways:
+You can also require signed URLs using the Stream binding in your Worker. Refer to [Bind to Workers API](/stream/manage-video-library/bindings/) for setup instructions.
 
-- **Using the /token endpoint to generate signed tokens:** The simplest way to create a signed url token is by calling the /token endpoint. This is recommended for testing purposes or if you are generating less than 10,000 tokens per day.
+<TypeScriptExample>
 
-- **Using an open-source library:** If you have tens of thousands of daily users and need to generate a high-volume of tokens without calling the /token endpoint _each time_, you can create tokens yourself. This way, you do not need to call a Stream endpoint each time you need to generate a token.
+```ts
+export default {
+	async fetch(request, env) {
+		const video = await env.STREAM.video("VIDEO_ID").update({
+			requireSignedURLs: true,
+		});
+		return Response.json(video);
+	},
+};
+```
+
+</TypeScriptExample>
+
+## Three Ways to Generate Signed Tokens
+
+You can program your app to generate tokens in three ways:
+
+- **Low-volume or testing: Use the `/token` endpoint to generate a short-lived signed token.** This is recommended for testing purposes or if you are generating less than 1,000 tokens per day. It requires making an API call to Cloudflare for each token, _which is subject to [rate limiting](/fundamentals/api/reference/limits/)._ The default result is valid for 1 hour. This method does not support [Live WebRTC](/stream/webrtc-beta/).
+
+- **Recommended: Use a signing key to create tokens.** If you have thousands of daily users or need to generate a high volume of tokens, as with [Live WebRTC](/stream/webrtc-beta/), you can create tokens yourself using a signing key. This way, you do not need to call a Stream API each time you need to generate a token, and is therefore _not_ a rate-limited operation.
+
+- **Workers binding: Use the Stream binding to generate tokens.** If you are using Cloudflare Workers with the Stream binding, you can generate tokens directly without making a separate API call or managing signing keys. This is the simplest approach for Workers users. For advanced customization such as access rules or custom expiration, use a signing key instead.
 
 ## Option 1: Using the /token endpoint
 
-You can call the `/token` endpoint for any video that is marked private to get a signed URL token which expires in one hour:
+You can call the `/token` endpoint for any video that is marked private to get a signed URL token which expires in one hour. This method does not support [Live WebRTC](/stream/webrtc-beta/).
 
 ```bash
 curl --request POST \
@@ -74,7 +100,24 @@ You will see a response similar to this if the request succeeds:
 }
 ```
 
-To render the video, insert the `token` value in place of the `video id`:
+#### Workers binding
+
+You can generate a signed token using the Stream binding:
+
+<TypeScriptExample>
+
+```ts
+export default {
+	async fetch(request, env) {
+		const token = await env.STREAM.video("VIDEO_ID").generateToken();
+		return Response.json({ token });
+	},
+};
+```
+
+</TypeScriptExample>
+
+To render the video or use assets like manifests or thumbnails, use the `token` value in place of the video/input ID. For example, to use the Stream player, replace the ID between `cloudflarestream.com/` and `/iframe` with the token: `https://customer-<CODE>.cloudflarestream.com/<TOKEN>/iframe`.
 
 ```html
 <iframe
@@ -87,90 +130,73 @@ To render the video, insert the `token` value in place of the `video id`:
 ></iframe>
 ```
 
-If you are using your own player, replace the video id in the manifest URL with the `token` value:
+Similarly, if you are using your own player, retrieve the HLS or DASH manifest by replacing the video ID in the manifest URL with the `token` value:
 
-`https://customer-<CODE>.cloudflarestream.com/eyJhbGciOiJSUzI1NiIsImtpZCI6ImNkYzkzNTk4MmY4MDc1ZjJlZjk2MTA2ZDg1ZmNkODM4In0.eyJraWQiOiJjZGM5MzU5ODJmODA3NWYyZWY5NjEwNmQ4NWZjZDgzOCIsImV4cCI6IjE2MjE4ODk2NTciLCJuYmYiOiIxNjIxODgyNDU3In0.iHGMvwOh2-SuqUG7kp2GeLXyKvMavP-I2rYCni9odNwms7imW429bM2tKs3G9INms8gSc7fzm8hNEYWOhGHWRBaaCs3U9H4DRWaFOvn0sJWLBitGuF_YaZM5O6fqJPTAwhgFKdikyk9zVzHrIJ0PfBL0NsTgwDxLkJjEAEULQJpiQU1DNm0w5ctasdbw77YtDwdZ01g924Dm6jIsWolW0Ic0AevCLyVdg501Ki9hSF7kYST0egcll47jmoMMni7ujQCJI1XEAOas32DdjnMvU8vXrYbaHk1m1oXlm319rDYghOHed9kr293KM7ivtZNlhYceSzOpyAmqNFS7mearyQ/manifest/video.m3u8`
+- `https://customer-<CODE>.cloudflarestream.com/<TOKEN>/manifest/video.m3u8`
+- `https://customer-<CODE>.cloudflarestream.com/<TOKEN>/manifest/video.mpd`
 
 ### Customizing default restrictions
 
-If you call the `/token` endpoint without any body, it will return a token that expires in one hour. Let's say you want to let a user watch a particular video for the next 12 hours. Here's how you'd do it with a Cloudflare Worker:
+If you call the `/token` endpoint without any body, it will return a token that expires in one hour without any other restrictions or access to [downloads](/stream/viewing-videos/download-videos/). This token can be customized by providing additional properties in the request:
 
 ```javascript
+	const signed_url_restrictions = {
+		// Extend the lifetime of the token to 12 hours:
+		exp: Math.floor(Date.now() / 1000) + 12 * 60 * 60,
+		// Allow access to MP4 or Audio Download URLs:
+		downloadable: true,
+		// Geo or IP access restrictions:
+		accessRules: {
+			// ... see examples below
+		}
+	};
+
+	const init = {
+		method: "POST",
+		headers: {
+			Authorization: "Bearer <API_TOKEN>",
+			"content-type": "application/json;charset=UTF-8",
+		},
+		body: JSON.stringify(signed_url_restrictions),
+	};
+
+	const signedurl_service_response = await fetch(
+		"https://api.cloudflare.com/client/v4/accounts/{account_id}/stream/{video_uid}/token",
+		init,
+	);
+
+	return new Response(
+		JSON.stringify(await signedurl_service_response.json()),
+		{ status: 200 },
+	);
+```
+
+However, if you are generating tokens programmatically or adding customizations like these, it is faster and more scalable to use a signing key and generate the token within your application entirely.
+
+## Option 2: Using the Stream binding
+
+If you are using the Stream binding in your Worker, you can generate signed tokens without making a separate API call to the `/token` endpoint or managing signing keys yourself. The binding handles token generation internally.
+
+Refer to [Bind to Workers API](/stream/manage-video-library/bindings/) for setup instructions.
+
+<TypeScriptExample>
+
+```ts
 export default {
-	async fetch(request, env, ctx) {
-		const signed_url_restrictions = {
-			//limit viewing for the next 12 hours
-			exp: Math.floor(Date.now() / 1000) + 12 * 60 * 60,
-		};
-
-		const init = {
-			method: "POST",
-			headers: {
-				Authorization: "Bearer <API_TOKEN>",
-				"content-type": "application/json;charset=UTF-8",
-			},
-			body: JSON.stringify(signed_url_restrictions),
-		};
-
-		const signedurl_service_response = await fetch(
-			"https://api.cloudflare.com/client/v4/accounts/{account_id}/stream/{video_uid}/token",
-			init,
-		);
-
-		return new Response(
-			JSON.stringify(await signedurl_service_response.json()),
-			{ status: 200 },
-		);
+	async fetch(request, env) {
+		const token = await env.STREAM.video("VIDEO_ID").generateToken();
+		return Response.json({ token });
 	},
 };
 ```
 
-The returned token will expire after 12 hours.
+</TypeScriptExample>
 
-Let's take this a step further and add 2 additional restrictions:
+The token generated by the binding expires in one hour by default. If you need to customize restrictions such as expiration time, geolocation, or download access, use [a signing key](#option-3-using-a-signing-key-to-create-signed-tokens) to create tokens with custom claims.
 
-- Allow the signed URL token to be used for MP4 downloads (assuming the video has downloads enabled)
-- Block users from US and Mexico from viewing or downloading the video
+## Option 3: Using a signing key to create signed tokens
 
-To achieve this, we can specify additional restrictions in the `signed_url_restrictions` object in our sample code:
-
-```javascript
-export default {
-	async fetch(request, env, ctx) {
-		const signed_url_restrictions = {
-			//limit viewing for the next 2 hours
-			exp: Math.floor(Date.now() / 1000) + 12 * 60 * 60,
-			downloadable: true,
-			accessRules: [
-				{ type: "ip.geoip.country", country: ["US", "MX"], action: "block" },
-			],
-		};
-
-		const init = {
-			method: "POST",
-			headers: {
-				Authorization: "Bearer <API_TOKEN>",
-				"content-type": "application/json;charset=UTF-8",
-			},
-			body: JSON.stringify(signed_url_restrictions),
-		};
-
-		const signedurl_service_response = await fetch(
-			"https://api.cloudflare.com/client/v4/accounts/{account_id}/stream/{video_uid}/token",
-			init,
-		);
-
-		return new Response(
-			JSON.stringify(await signedurl_service_response.json()),
-			{ status: 200 },
-		);
-	},
-};
-```
-
-## Option 2: Generating signed tokens without calling the `/token` endpoint
-
-If you are generating a high-volume of tokens, it is best to generate new tokens without needing to call the Stream API each time.
+If you are generating a high-volume of tokens, using [Live WebRTC](/stream/webrtc-beta/), or need to customize the access rules, generate new tokens using a signing key so you do not need to call the Stream API each time.
 
 ### Step 1: Call the `/stream/key` endpoint _once_ to obtain a key
 
@@ -196,7 +222,9 @@ The response will return `pem` and `jwk` values.
 }
 ```
 
-Save these values as they won't be shown again. You will use these values later to generate the tokens. The pem and jwk fields are base64-encoded, you must decode them before using them (an example of this is shown in step 2).
+These values will not be shown again so we recommend saving them securely right away. If you are using Cloudflare Workers, you can store them using [Secrets](/workers/configuration/secrets/). If you are using another platform, store them in secure environment variables.
+
+You will use these values later to generate the tokens. The pem and jwk fields are base64-encoded, you must decode them before using them (an example of this is shown in step 2).
 
 ### Step 2: Generate tokens using the key
 
@@ -224,6 +252,8 @@ async function streamSignedUrl() {
 		sub: videoUID,
 		kid: keyID,
 		exp: expiresIn,
+		// Add `downloadable` boolean for access to MP4 or Audio Downloads:
+		// downloadable: true,
 		accessRules: [
 			{
 				type: "ip.geoip.country",
@@ -280,7 +310,7 @@ function objectToBase64url(payload) {
 
 ### Step 3: Rendering the video
 
-If you are using the Stream Player, insert the token returned by the Worker in Step 2 in place of the video id:
+If you are using the Stream Player, insert the `token` value returned by the Worker in Step 2 in place of the `video id`, replacing the entire string located between `cloudflarestream.com/` and `/iframe`:
 
 ```html
 <iframe
@@ -296,6 +326,10 @@ If you are using the Stream Player, insert the token returned by the Worker in S
 If you are using your own player, replace the video id in the manifest url with the `token` value:
 
 `https://customer-<CODE>.cloudflarestream.com/eyJhbGciOiJSUzI1NiIsImtpZCI6ImNkYzkzNTk4MmY4MDc1ZjJlZjk2MTA2ZDg1ZmNkODM4In0.eyJraWQiOiJjZGM5MzU5ODJmODA3NWYyZWY5NjEwNmQ4NWZjZDgzOCIsImV4cCI6IjE2MjE4ODk2NTciLCJuYmYiOiIxNjIxODgyNDU3In0.iHGMvwOh2-SuqUG7kp2GeLXyKvMavP-I2rYCni9odNwms7imW429bM2tKs3G9INms8gSc7fzm8hNEYWOhGHWRBaaCs3U9H4DRWaFOvn0sJWLBitGuF_YaZM5O6fqJPTAwhgFKdikyk9zVzHrIJ0PfBL0NsTgwDxLkJjEAEULQJpiQU1DNm0w5ctasdbw77YtDwdZ01g924Dm6jIsWolW0Ic0AevCLyVdg501Ki9hSF7kYST0egcll47jmoMMni7ujQCJI1XEAOas32DdjnMvU8vXrYbaHk1m1oXlm319rDYghOHed9kr293KM7ivtZNlhYceSzOpyAmqNFS7mearyQ/manifest/video.m3u8`
+
+To allow access to [MP4 or audio downloads](/stream/viewing-videos/download-videos/), make sure the video has the download type already enabled. Then add `downloadable: true` to the payload as shown in the comment above when generating the signed URL. Replace the video id in the download URL with the `token` value:
+
+- `https://customer-<CODE>.cloudflarestream.com/eyJhbGciOiJ.../downloads/default.mp4`
 
 ### Revoking keys
 
@@ -401,6 +435,23 @@ curl https://api.cloudflare.com/client/v4/accounts/{account_id}/stream/{video_ui
 --header "Authorization: Bearer <API_TOKEN>" \
 --data "{\"uid\": \"<VIDEO_UID>\", \"allowedOrigins\": [\"example.com\"]}"
 ```
+
+You can also set allowed origins using the Stream binding:
+
+<TypeScriptExample>
+
+```ts
+export default {
+	async fetch(request, env) {
+		const video = await env.STREAM.video("VIDEO_ID").update({
+			allowedOrigins: ["example.com"],
+		});
+		return Response.json(video);
+	},
+};
+```
+
+</TypeScriptExample>
 
 ### Allowed Origins
 

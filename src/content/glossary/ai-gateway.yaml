@@ -7,7 +7,7 @@ entries:
 
   - term: cf-aig-step
     general_definition: |-
-      [cf-aig-step](/ai-gateway/configuration/fallbacks/#response-headercf-aig-step) identifies the processing step in the AI Gateway flow for better tracking and debugging.
+      The cf-aig-step response header identifies which step in a request flow successfully processed the request, useful for tracking and debugging.
 
   - term: cf-aig-log-id
     general_definition: |-
@@ -23,11 +23,11 @@ entries:
 
   - term: cf-aig-cache-key
     general_definition: |-
-      The [cf-aig-cache-key-aig-cache-key](/ai-gateway/configuration/caching/#custom-cache-key-cf-aig-cache-key) let you override the default cache key in order to precisely set the cacheability setting for any resource.
+      The [cf-aig-cache-key-aig-cache-key](/ai-gateway/features/caching/#custom-cache-key-cf-aig-cache-key) let you override the default cache key in order to precisely set the cacheability setting for any resource.
 
   - term: cf-aig-cache-status
     general_definition: |-
-      [Status indicator for caching](/ai-gateway/configuration/caching/#default-configuration), showing if a request was served from cache.
+      [Status indicator for caching](/ai-gateway/features/caching/#default-configuration), showing if a request was served from cache.
 
   - term: cf-aig-metadata
     general_definition: |-
@@ -35,11 +35,35 @@ entries:
 
   - term: cf-aig-cache-ttl
     general_definition: |-
-      Specifies the [cache time-to-live for responses](/ai-gateway/configuration/caching/#cache-ttl-cf-aig-cache-ttl).
+      Specifies the [cache time-to-live for responses](/ai-gateway/features/caching/#cache-ttl-cf-aig-cache-ttl).
 
   - term: cf-aig-skip-cache
     general_definition: |-
-      Header to [bypass caching for a specific request](/ai-gateway/configuration/caching/#skip-cache-cf-aig-skip-cache).
+      Header to [bypass caching for a specific request](/ai-gateway/features/caching/#skip-cache-cf-aig-skip-cache).
+
+  - term: cf-aig-request-timeout
+    general_definition: |-
+      Header to set a [request timeout](/ai-gateway/configuration/request-handling/#request-timeouts) (measured in milliseconds). If the provider does not respond within this time, the request returns an error.
+
+  - term: cf-aig-max-attempts
+    general_definition: |-
+      Header to customize the number of max attempts for [request retries](/ai-gateway/configuration/request-handling/#request-retries) of a request.
+
+  - term: cf-aig-retry-delay
+    general_definition: |-
+      Header to customize the retry delay for [request retries](/ai-gateway/configuration/request-handling/#request-retries) of a request.
+
+  - term: cf-aig-backoff
+    general_definition: |-
+      Header to customize the backoff type for [request retries](/ai-gateway/configuration/request-handling/#request-retries) of a request.
+
+  - term: cf-aig-dlp
+    general_definition: |-
+      A response header returned when a [DLP policy](/ai-gateway/features/dlp/set-up-dlp/#dlp-response-header) matches a request or response. Contains JSON with the action taken (Flag or Block), matched policy IDs, matched profile IDs, and detection entry IDs.
+
+  - term: cf-aig-no-wholesale
+    general_definition: |-
+      Prevents [Unified Billing fallback](/ai-gateway/features/unified-billing/#prevent-unified-billing-fallback-for-byok-third-party-providers) for a third-party provider request when set to `true`. The request must use provider credentials supplied with the request or stored on the gateway.
 
   # Deprecated headers
   - term: cf-cache-ttl

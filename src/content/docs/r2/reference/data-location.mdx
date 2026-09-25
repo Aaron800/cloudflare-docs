@@ -1,9 +1,14 @@
 ---
 title: Data location
+description: Control where R2 stores your data using automatic placement, location hints, or jurisdictions.
 pcx_content_type: concept
 sidebar:
   order: 7
+products:
+  - r2
 ---
+
+import { WranglerConfig, DashButton } from "~/components";
 
 Learn how the location of data stored in R2 is determined and about the different available inputs that control the physical location where objects in your buckets are stored.
 
@@ -21,7 +26,9 @@ Using Location Hints can be a good choice when you expect the majority of access
 
 You can choose to automatically create your bucket in the closest available region based on your location or choose a specific location from the list.
 
-1. Log in to the [Cloudflare dashboard](https://dash.cloudflare.com) and select **R2**.
+1. In the Cloudflare dashboard, go to the **R2 object storage** page.
+
+   <DashButton url="/?to=/:account/r2/overview" />
 2. Select **Create bucket**.
 3. Enter a name for the bucket.
 4. Under **Location**, leave _None_ selected for automatic selection or choose a region from the list.
@@ -69,7 +76,9 @@ Use Jurisdictional Restrictions when you need to ensure data is stored and proce
 
 ### Set jurisdiction via the Cloudflare dashboard
 
-1. Log in to the [Cloudflare dashboard](https://dash.cloudflare.com/) and select R2.
+1. In the Cloudflare dashboard, go to the **R2 object storage** page.
+
+   <DashButton url="/?to=/:account/r2/overview" />
 2. Select **Create bucket**.
 3. Enter a name for the bucket.
 4. Under **Location**, select **Specify jurisdiction** and choose a jurisdiction from the list.
@@ -77,17 +86,20 @@ Use Jurisdictional Restrictions when you need to ensure data is stored and proce
 
 ### Using jurisdictions from Workers
 
-To access R2 buckets that belong to a jurisdiction from [Workers](/workers/), you will need to specify the jurisdiction as well as the bucket name as part of your [bindings](/r2/api/workers/workers-api-usage/#3-bind-your-bucket-to-a-worker) in your `wrangler.toml`:
-
-import { WranglerConfig } from "~/components";
+To access R2 buckets that belong to a jurisdiction from [Workers](/workers/), you will need to specify the jurisdiction as well as the bucket name as part of your [bindings](/r2/api/workers/workers-api-usage/#3-bind-your-bucket-to-a-worker) in your [Wrangler configuration file](/workers/wrangler/configuration/):
 
 <WranglerConfig>
 
-```toml
-[[r2_buckets]]
-bindings = [
-  { binding = "MY_BUCKET", bucket_name = "<YOUR_BUCKET_NAME>", jurisdiction = "<JURISDICTION>" }
-]
+```jsonc
+{
+	"r2_buckets": [
+		{
+			"binding": "MY_BUCKET",
+			"bucket_name": "<YOUR_BUCKET_NAME>",
+			"jurisdiction": "<JURISDICTION>"
+		}
+	]
+}
 ```
 
 </WranglerConfig>
@@ -107,12 +119,10 @@ The example below shows how to create an R2 bucket in the `eu` jurisdiction usin
 ```js
 import { S3Client, CreateBucketCommand } from "@aws-sdk/client-s3";
 const S3 = new S3Client({
-	endpoint:
-		"https://4893d737c0b9e484dfc37ec392b5fa8a.eu.r2.cloudflarestorage.com",
+	endpoint: "https://<account_id>.eu.r2.cloudflarestorage.com",
 	credentials: {
-		accessKeyId: "7dc27c125a22ad808cd01df8ec309d41",
-		secretAccessKey:
-			"1aa5c5b0c43defdb88f567487c071d17e234126133444770a706ae09336c57a4",
+		accessKeyId: "<access_key_id>",
+		secretAccessKey: "<access_key_secret>",
 	},
 	region: "auto",
 });
@@ -133,6 +143,7 @@ The following jurisdictions are supported:
 | ------------ | ------------------------ |
 | eu           | European Union           |
 | fedramp      | FedRAMP                  |
+| us           | United States            |
 
 :::note
 
@@ -143,8 +154,7 @@ Cloudflare Enterprise customers may contact their account team or [Cloudflare Su
 
 The following services do not interact with R2 resources with assigned jurisdictions:
 
-- [Super Slurper](/r2/data-migration/) (_coming soon_)
-- [Logpush](/logs/get-started/enable-destinations/r2/). As a workaround to this limitation, you can set up a [Logpush job using an S3-compatible endpoint](/data-localization/how-to/r2/#send-logs-to-r2-via-s3-compatible-endpoint) to store logs in an R2 bucket in the jurisdiction of your choice.
+- [Logpush](/logs/logpush/logpush-job/enable-destinations/r2/). As a workaround to this limitation, you can set up a [Logpush job using an S3-compatible endpoint](/data-localization/how-to/r2/#send-logs-to-r2-via-s3-compatible-endpoint) to store logs in an R2 bucket in the jurisdiction of your choice.
 
 ### Additional considerations
 

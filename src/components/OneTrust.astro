@@ -1,39 +1,40 @@
-{
-	import.meta.env.PROD ? (
-		<>
-			<script
-				src="https://ot.www.cloudflare.com/public/vendor/onetrust/scripttemplates/otSDKStub.js"
-				type="text/javascript"
-				charset="UTF-8"
-				data-domain-script="b1e05d49-f072-4bae-9116-bdb78af15448"
-				is:inline
-			/>
-			<script type="text/javascript" is:inline>
-				function OptanonWrapper() {}
-			</script>
-		</>
-	) : (
-		<>
-			<script
-				src="https://ot.www.cloudflare.com/public/vendor/onetrust/scripttemplates/otSDKStub.js"
-				type="text/javascript"
-				charset="UTF-8"
-				data-domain-script="b1e05d49-f072-4bae-9116-bdb78af15448-test"
-				is:inline
-			/>
-			<script type="text/javascript" is:inline>
-				function OptanonWrapper() {}
-			</script>
-		</>
-	)
+---
+import { Image } from "astro:assets";
+import PrivacyChoicesImage from "~/assets/privacyoptions.svg";
+
+interface Props {
+	label?: string;
 }
-<span class="DocsFooter--content-additional-wrapper">
-	<!-- OneTrust Cookies Settings button start -->
-	<a role="button" id="ot-sdk-btn" class="ot-sdk-show-settings"
-		>Cookie Settings</a
-	>
-	<!-- OneTrust Cookies Settings button end -->
-</span>
+
+const { label = "Cookie Settings" } = Astro.props;
+
+const isProductionDeployment =
+	import.meta.env.CF_PAGES_BRANCH === "production" ||
+	import.meta.env.GITHUB_REF_NAME === "production";
+
+const uuid = isProductionDeployment
+	? "b1e05d49-f072-4bae-9116-bdb78af15448"
+	: "b1e05d49-f072-4bae-9116-bdb78af15448-test";
+---
+
+<script
+	src="https://ot.www.cloudflare.com/public/vendor/onetrust/scripttemplates/otSDKStub.js"
+	type="text/javascript"
+	charset="UTF-8"
+	data-domain-script={uuid}
+	is:inline
+></script>
+<script type="text/javascript" is:inline>
+	window.OptanonWrapper = () => {};
+</script>
+<!-- OneTrust Cookies Settings button start -->
+<div class="inline-flex items-center gap-2">
+	<Image src={PrivacyChoicesImage} alt="privacy options" height="12" />
+	<button id="ot-sdk-btn" class="ot-sdk-show-settings">
+		{label}
+	</button>
+</div>
+<!-- OneTrust Cookies Settings button end -->
 
 <style>
 	#ot-sdk-btn.ot-sdk-show-settings {
@@ -43,6 +44,7 @@
 		line-height: inherit !important;
 		padding: inherit !important;
 		font-family: var(--sl-font-family) !important;
+		background-color: inherit !important;
 	}
 
 	#ot-sdk-btn.ot-sdk-show-settings:hover {

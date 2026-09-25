@@ -1,7 +1,12 @@
 ---
 pcx_content_type: reference
 title: vercel/og
+description: Generate social images in Pages Functions using the @vercel/og Pages Plugin.
+products:
+  - pages
 ---
+
+import { PackageManagers } from "~/components";
 
 The `@vercel/og` Pages Plugin is a middleware which renders social images for webpages. It also includes an API to create arbitrary images.
 
@@ -11,9 +16,7 @@ As the name suggests, it is powered by [`@vercel/og`](https://vercel.com/docs/co
 
 To install the `@vercel/og` Pages Plugin, run:
 
-```sh
-npm install @cloudflare/pages-plugin-vercel-og
-```
+<PackageManagers pkg="@cloudflare/pages-plugin-vercel-og" />
 
 ## Use
 

@@ -1,5 +1,8 @@
 ---
 pcx_content_type: concept
+description: Attributes and metadata for DNS records.
+products:
+  - dns
 title: Record attributes
 sidebar:
   order: 4
@@ -8,8 +11,6 @@ head:
     content: DNS record comments and tags
 
 ---
-
-import { FeatureTable } from "~/components"
 
 Use DNS record comments and tags to categorize and clarify the purpose of DNS records within Cloudflare.
 
@@ -24,7 +25,7 @@ These attributes are particularly useful when:
 :::note
 
 
-The information in record attributes will not impact DNS record resolution or propagation timing and is only meant for your private reference. This information is only visible to [members](/fundamentals/setup/manage-members/manage/) of your Cloudflare account and is not visible publicly.
+The information in record attributes will not impact DNS record resolution or propagation timing and is only meant for your private reference. This information is only visible to [members](/fundamentals/manage-members/manage/) of your Cloudflare account and is not visible publicly.
 
 
 :::
@@ -33,15 +34,24 @@ The information in record attributes will not impact DNS record resolution or pr
 
 ## Availability
 
-Comments and tags are only supported for [full](/dns/zone-setups/full-setup/) and [partial zones](/dns/zone-setups/partial-setup/).
+Comments and tags are only supported for [primary zones (full setup)](/dns/zone-setups/full-setup/) and [partial zones (CNAME setup)](/dns/zone-setups/partial-setup/).
 
 ### Record comments
 
-<FeatureTable id="dns.record_comments" />
+|  | Free | Pro | Business | Enterprise |
+| - | - | - | - | - |
+| Availability | Yes | Yes | Yes | Yes |
+| Character limit | 100 | 500 | 500 | 500 |
+| Comments per record | 1 | 1 | 1 | 1 |
 
 ### Record tags
 
-<FeatureTable id="dns.record_tags" />
+|  | Free | Pro | Business | Enterprise |
+| - | - | - | - | - |
+| Availability | No | Yes | Yes | Yes |
+| Name character limit (everything before the colon) | N/A | 32 | 32 | 32 |
+| Value character limit (everything after the colon) | N/A | 100 | 100 | 100 |
+| Tags per record | N/A | 20 | 20 | 20 |
 
 ***
 
@@ -51,7 +61,7 @@ Create or edit record attributes just like any other aspect of DNS records, whet
 
 You can also add or edit attributes by [exporting and re-importing](/dns/manage-dns-records/how-to/import-and-export/#dns-record-attributes) your records, or using the [Batch record changes API](/dns/manage-dns-records/how-to/batch-record-changes/#use-the-api).
 
-When exporting and importing, a special tag `cf-flatten` allows you to control [CNAME flattening for individual records](/dns/cname-flattening/set-up-cname-flattening/#per-record). On export, this tag is automatically added to reflect the record configuration you have on your zone.
+When exporting and importing, special tags starting by `cf-` allow you to control specific Cloudflare configurations. On export, these tags are automatically added to reflect the current configuration for each record on your zone. Refer to [reserved cf- tags](/dns/manage-dns-records/how-to/import-and-export/#reserved-cf--tags) for details.
 
 ***
 

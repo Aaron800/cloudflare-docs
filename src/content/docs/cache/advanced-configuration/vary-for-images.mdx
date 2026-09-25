@@ -1,22 +1,27 @@
 ---
 title: Vary for images
 pcx_content_type: concept
+description: Serve images in the best format for each visitor browser.
+products:
+  - cache
 
 ---
 
-import { Details, FeatureTable } from "~/components"
+import { Details, APIRequest } from "~/components"
 
-`Vary` is an HTTP response header that allows origins to serve variants of the same content that can be used depending on the browser sending the request.
+The `Vary` HTTP response header tells Cloudflare that an origin can serve different versions of the same resource depending on the request headers. For images, this allows your origin to serve modern formats like WebP or AVIF to browsers that support them, while continuing to serve JPEG or PNG to others.
 
-Cloudflare sits in between the browser and the origin. When Cloudflare receives the origin’s response, the specific image variant is cached so that subsequent requests from browsers with the same image preferences can be served from cache. This also means that serving multiple image variants for the same asset will create distinct cache entries.
+When Cloudflare receives a response with image variants, it caches each variant separately. Subsequent requests from browsers with the same image format preferences are served directly from cache without contacting your origin.
 
-`Vary` for Images reduces the content-negotiation process by parsing a request’s `Accept` header, which is sent to the origin to deliver the correct content to the browser.
+Vary for Images works by parsing the `Accept` header in each request to determine which image format the browser supports, then serving the matching cached variant.
 
 Vary for images is available for Pro, Business, and Enterprise customers.
 
 ## Availability
 
-<FeatureTable id="cache.vary_for_images" />
+|  | Free | Pro | Business | Enterprise |
+| - | - | - | - | - |
+| Availability | No | Yes | Yes | Yes |
 
 ## File extensions
 
@@ -40,46 +45,47 @@ You can use vary for images on the file extensions below if the origin server se
 
 ## Enable vary for images
 
-Vary for Images is enabled through Cloudflare’s API by creating a variants rule. In the examples below, learn how to serve JPEG, WebP, and AVIF variants for `.jpeg` and `.jpg` extensions.
+Vary for Images is enabled through Cloudflare's API by creating a variants rule. In the examples below, learn how to serve JPEG, WebP, and AVIF variants for `.jpeg` and `.jpg` extensions.
 
 ### Create a variants rule
 
-```bash
-curl --request PATCH \
-"https://api.cloudflare.com/client/v4/zones/{zone_id}/cache/variants" \
---header "X-Auth-Email: <EMAIL>" \
---header "X-Auth-Key: <API_KEY>" \
---header "Content-Type: application/json" \
---data '{"value":{"jpeg":["image/webp","image/avif"],"jpg":["image/webp","image/avif"]}}'
-```
+<APIRequest
+  path="/zones/{zone_id}/cache/variants"
+  method="PATCH"
+  json={{
+    value: {
+      jpeg: ["image/webp", "image/avif"],
+      jpg: ["image/webp", "image/avif"]
+    }
+  }}
+/>
 
 ### Modify to only allow WebP variants
 
-```bash
-curl --request PATCH \
-"https://api.cloudflare.com/client/v4/zones/{zone_id}/cache/variants" \
---header "X-Auth-Email: <EMAIL>" \
---header "X-Auth-Key: <API_KEY>" \
---header "Content-Type: application/json" \
---data '{"value":{"jpeg":["image/webp"],"jpg":["image/webp"]}}'
-```
+<APIRequest
+  path="/zones/{zone_id}/cache/variants"
+  method="PATCH"
+  json={{
+    value: {
+      jpeg: ["image/webp"],
+      jpg: ["image/webp"]
+    }
+  }}
+/>
 
 ### Delete the rule
 
-```bash
-curl --request DELETE \
-"https://api.cloudflare.com/client/v4/zones/{zone_id}/cache/variants" \
---header "X-Auth-Email: <EMAIL>" \
---header "X-Auth-Key: <API_KEY>"
-```
+<APIRequest
+  path="/zones/{zone_id}/cache/variants"
+  method="DELETE"
+/>
 
 ### Get the rule
 
-```bash
-curl "https://api.cloudflare.com/client/v4/zones/{zone_id}/cache/variants" \
---header "X-Auth-Email: <EMAIL>" \
---header "X-Auth-Key: <API_KEY>"
-```
+<APIRequest
+  path="/zones/{zone_id}/cache/variants"
+  method="GET"
+/>
 
 To learn more about purging varied images, refer to [Purge varied images](/cache/how-to/purge-cache/purge-varied-images/).
 

@@ -1,18 +1,16 @@
 ---
-type: overview
 hideChildren: true
 pcx_content_type: navigation
 title: Examples
+description: Browse code examples and starter templates for Cloudflare Workers.
 sidebar:
   order: 3
+products:
+  - workers
 ---
 
-import { GlossaryTooltip, ListExamples } from "~/components";
-
-:::note
-[Explore our community-written tutorials contributed through the Developer Spotlight program.](/developer-spotlight/)
-:::
+import { GlossaryTooltip, ResourcesBySelector } from "~/components";
 
 Explore the following <GlossaryTooltip term="code example">examples</GlossaryTooltip> for Workers.
 
-<ListExamples directory="workers/examples/" filters={["languages", "tags"]} />
+<ResourcesBySelector directory="workers/examples/" types={["example"]} />

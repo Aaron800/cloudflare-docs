@@ -3,6 +3,9 @@ title: Find by solution
 pcx_content_type: overview
 sidebar:
   order: 3
+description: Find reference architecture documentation by solution area.
+products:
+  - reference-architecture
 ---
 
 import { CardGrid, LinkTitleCard, Render } from "~/components";
@@ -45,7 +48,7 @@ Architecture documentation related to using Cloudflare for Zero Trust, SSE and S
 - [Securing data in use](/reference-architecture/diagrams/security/securing-data-in-use/)
 - [Extend ZTNA with external authorization and serverless computing](/reference-architecture/diagrams/sase/augment-access-with-serverless/)
 - [DNS filtering solution for Internet service providers](/reference-architecture/diagrams/sase/gateway-dns-for-isp/)
-- [Magic WAN Connector deployment options](/reference-architecture/diagrams/sase/magic-wan-connector-deployment/)
+- [Cloudflare One Appliance deployment options](/reference-architecture/diagrams/sase/cloudflare-one-appliance-deployment/)
 - [Deploy self-hosted VoIP services for hybrid users](/reference-architecture/diagrams/sase/deploying-self-hosted-voip-services-for-hybrid-users/)
 
 #### Design guides
@@ -57,10 +60,10 @@ Architecture documentation related to using Cloudflare for Zero Trust, SSE and S
 
 #### Implementation guides
 
-- [Secure your Internet traffic and SaaS apps](/learning-paths/secure-internet-traffic/)
-- [Replace your VPN](/learning-paths/replace-vpn/)
-- [Deploy Zero Trust Web Access](/learning-paths/zero-trust-web-access/)
-- [Secure Microsoft 365 email with Email Security](/learning-paths/secure-o365-email/)
+- [Secure your Internet traffic and SaaS apps](/learning-paths/secure-internet-traffic/concepts/)
+- [Replace your VPN](/learning-paths/replace-vpn/concepts/)
+- [Deploy clientless access](/learning-paths/clientless-access/concepts/)
+- [Secure your email with Email security](/learning-paths/secure-your-email/concepts/)
 
 ### Networking
 
@@ -80,6 +83,10 @@ Content related to DNS, caching, load balancing and other Cloudflare services de
 - [Content Delivery Network](/reference-architecture/architectures/cdn/)
 - [Load Balancing](/reference-architecture/architectures/load-balancing/)
 
+#### Reference architecture diagrams
+
+- [Designing a distributed web performance architecture](/reference-architecture/diagrams/content-delivery/distributed-web-performance-architecture/)
+
 ### Application Security
 
 Content related to protecting your applications from threats such as DDoS attack, SQL injection, exploiting application vulnerabilities, scraping API data and more.
@@ -94,7 +101,7 @@ Content related to protecting your applications from threats such as DDoS attack
 
 #### Implementation guides
 
-- [Use mTLS with Cloudflare protected resources](/learning-paths/mtls/)
+- [Use mTLS with Cloudflare protected resources](/learning-paths/mtls/concepts/)
 
 ### Developer Platform
 
@@ -119,9 +126,12 @@ Architecture content for our developer platform.
 - [Serverless ETL pipelines](/reference-architecture/diagrams/serverless/serverless-etl/)
 - [Serverless global APIs](/reference-architecture/diagrams/serverless/serverless-global-apis/)
 - [Serverless image content management](/reference-architecture/diagrams/serverless/serverless-image-content-management/)
+- [Programmable Platforms](/reference-architecture/diagrams/serverless/programmable-platforms/)
 
 ##### Storage
 
 - [Egress-free object storage in multi-cloud setups](/reference-architecture/diagrams/storage/egress-free-storage-multi-cloud/)
 - [On-demand Object Storage Data Migration](/reference-architecture/diagrams/storage/on-demand-object-storage-migration/)
 - [Event notifications for storage](/reference-architecture/diagrams/storage/event-notifications-for-storage/)
+- [Storing User Generated Content](/reference-architecture/diagrams/storage/storing-user-generated-content/)
+- [Control and data plane architectural pattern for Durable Objects](/reference-architecture/diagrams/storage/durable-object-control-data-plane-pattern/)

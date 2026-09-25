@@ -1,9 +1,12 @@
 ---
 pcx_content_type: reference
 title: Workers API reference
+description: Complete reference for the R2 in-Worker API, including bucket and object operations.
+products:
+  - r2
 ---
 
-import { Type, MetaInfo } from "~/components";
+import { Type, MetaInfo, WranglerConfig, TabItem, Tabs } from "~/components";
 
 The in-Worker R2 API is accessed by binding an R2 bucket to a [Worker](/workers). The Worker you write can expose external access to buckets via a route or manipulate R2 objects internally.
 
@@ -17,22 +20,25 @@ R2 organizes the data you store, called objects, into containers, called buckets
 
 :::note[Bindings]
 
-A binding is how your Worker interacts with external resources such as [KV Namespaces](/kv/concepts/kv-namespaces/), [Durable Objects](/durable-objects/), or [R2 Buckets](/r2/buckets/). A binding is a runtime variable that the Workers runtime provides to your code. You can declare a variable name in your `wrangler.toml` file that will be bound to these resources at runtime, and interact with them through this variable. Every binding's variable name and behavior is determined by you when deploying the Worker. Refer to [Environment Variables](/workers/configuration/environment-variables/) for more information.
+A binding is how your Worker interacts with external resources such as [KV Namespaces](/kv/concepts/kv-namespaces/), [Durable Objects](/durable-objects/), or [R2 Buckets](/r2/buckets/). A binding is a runtime variable that the Workers runtime provides to your code. You can declare a variable name in your Wrangler file that will be bound to these resources at runtime, and interact with them through this variable. Every binding's variable name and behavior is determined by you when deploying the Worker. Refer to [Environment Variables](/workers/configuration/environment-variables/) for more information.
 
-A binding is defined in the `wrangler.toml` file of your Worker project's directory.
+A binding is defined in the Wrangler file of your Worker project's directory.
 
 :::
 
-To bind your R2 bucket to your Worker, add the following to your `wrangler.toml` file. Update the `binding` property to a valid JavaScript variable identifier and `bucket_name` to the name of your R2 bucket:
-
-import { WranglerConfig } from "~/components";
+To bind your R2 bucket to your Worker, add the following to your Wrangler file. Update the `binding` property to a valid JavaScript variable identifier and `bucket_name` to the name of your R2 bucket:
 
 <WranglerConfig>
 
-```toml
-[[r2_buckets]]
-binding = 'MY_BUCKET' # <~ valid JavaScript variable name
-bucket_name = '<YOUR_BUCKET_NAME>'
+```jsonc
+{
+	"r2_buckets": [
+		{
+			"binding": "MY_BUCKET", // <~ valid JavaScript variable name
+			"bucket_name": "<YOUR_BUCKET_NAME>"
+		}
+	]
+}
 ```
 
 </WranglerConfig>
@@ -44,6 +50,8 @@ Within your Worker, your bucket binding is now available under the `MY_BUCKET` v
 The following methods are available on the bucket binding object injected into your code.
 
 For example, to issue a `PUT` object request using the binding above:
+
+<Tabs syncKey="workersExamples"> <TabItem label="JavaScript" icon="seti:javascript">
 
 ```js
 export default {
@@ -67,6 +75,32 @@ export default {
 	},
 };
 ```
+
+</TabItem>
+<TabItem label="Python" icon="seti:python">
+
+```py
+from workers import WorkerEntrypoint, Response
+from urllib.parse import urlparse
+
+class Default(WorkerEntrypoint):
+	async def fetch(self, request):
+		url = urlparse(request.url)
+		key = url.path[1:]
+
+		if request.method == "PUT":
+			await self.env.MY_BUCKET.put(key, request.body)
+			return Response(f"Put {key} successfully!")
+		else:
+			return Response(
+				f"{request.method} is not allowed.",
+				status=405,
+				headers={"Allow": "PUT"}
+			)
+```
+
+</TabItem>
+</Tabs>
 
 - `head` <Type text="(key: string): Promise<R2Object | null>" />
 
@@ -147,7 +181,7 @@ Cloudflare recommends using the `httpEtag` field when returning an etag in a res
 
   - A map of custom, user-defined metadata associated with the object.
 
-- `range` <Type text="R2Range" />
+- `range` <Type text="R2Range" /> <MetaInfo text="optional" />
 
   - A `R2Range` object containing the returned range of the object.
 
@@ -163,7 +197,7 @@ Cloudflare recommends using the `httpEtag` field when returning an etag in a res
 
   - The storage class associated with the object. Refer to [Storage Classes](#storage-class).
 
-- `ssecKeyMd5` <Type text="string" />
+- `ssecKeyMd5` <Type text="string" /> <MetaInfo text="optional" />
 
   - Hex-encoded MD5 hash of the [SSE-C](/r2/examples/ssec) key used for encryption (if one was provided). Hash can be used to identify which key is needed to decrypt object.
 
@@ -185,7 +219,7 @@ Cloudflare recommends using the `httpEtag` field when returning an etag in a res
 
 - `text` <Type text="(): Promise<string>" />
 
-  - Returns a Promise that resolves to an string containing the object's value.
+  - Returns a Promise that resolves to a string containing the object's value.
 
 - `json` <Type text="<T>() : Promise<T>" />
 
@@ -239,9 +273,9 @@ A multipart upload can be completed or aborted at any time, either through the S
 
   - Specifies that the object should only be returned given satisfaction of certain conditions in the `R2Conditional` or in the conditional Headers. Refer to [Conditional operations](#conditional-operations).
 
-- `range` <Type text="R2Range" />
+- `range` <Type text="R2Range | Headers" /> <MetaInfo text="optional" />
 
-  - Specifies that only a specific length (from an optional offset) or suffix of bytes from the object should be returned. Refer to [Ranged reads](#ranged-reads).
+  - Specifies that only a specific length (from an optional offset) or suffix of bytes from the object should be returned given the range in the `R2Range` or in the range `Headers`. Refer to [Ranged reads](#ranged-reads).
 
 - `ssecKey` <Type text="ArrayBuffer | string" />
 
@@ -361,10 +395,11 @@ Only a single hashing algorithm can be specified at once.
 
   - Note that there is a limit on the total amount of data that a single `list` operation can return. If you request data, you may receive fewer than `limit` results in your response to accommodate metadata.
 
-  - The [compatibility date](/workers/configuration/compatibility-dates/) must be set to `2022-08-04` or later in your `wrangler.toml` file. If not, then the `r2_list_honor_include` compatibility flag must be set. Otherwise it is treated as `include: ['httpMetadata', 'customMetadata']` regardless of what the `include` option provided actually is.
+  - The [compatibility date](/workers/configuration/compatibility-dates/) must be set to `2022-08-04` or later in your Wrangler file. If not, then the `r2_list_honor_include` compatibility flag must be set. Otherwise it is treated as `include: ['httpMetadata', 'customMetadata']` regardless of what the `include` option provided actually is.
 
   This means applications must be careful to avoid comparing the amount of returned objects against your `limit`. Instead, use the `truncated` property to determine if the `list` request has more data to be returned.
 
+<Tabs syncKey="workersExamples"> <TabItem label="JavaScript" icon="seti:javascript">
 ```js
 const options = {
 	limit: 500,
@@ -395,6 +430,31 @@ while (truncated) {
 	cursor = next.cursor;
 }
 ```
+</TabItem> <TabItem label="Python" icon="seti:python">
+```py
+limit = 500
+include = ["customMetadata"]
+
+listed = await self.env.MY_BUCKET.list(limit=limit, include=include)
+
+truncated = listed.truncated
+cursor = listed.cursor if truncated else None
+
+# ❌ - if your limit can't fit into a single response or your
+# bucket has less objects than the limit, it will get stuck here.
+while len(listed.objects) < limit:
+    ...
+
+# ✅ - use the truncated property to check if there are more
+# objects to be returned
+while truncated:
+    next_page = await self.env.MY_BUCKET.list(limit=limit, include=include, cursor=cursor)
+    listed.objects.extend(next_page.objects)
+
+    truncated = next_page.truncated
+    cursor = next_page.cursor
+```
+</TabItem> </Tabs>
 
 ### R2Objects
 

@@ -1,32 +1,50 @@
 ---
-title: Create a rule
+title: Create an IP access rule
 pcx_content_type: how-to
+description: Create IP Access rules to allow, block, or challenge by IP.
+products:
+  - waf
 sidebar:
   order: 2
-head:
-  - tag: title
-    content: Create an IP Access rule
+  label: Create a rule
 ---
 
-import { TabItem, Tabs } from "~/components";
+import { TabItem, Tabs, Steps, DashButton } from "~/components";
 
-<Tabs syncKey="dashPlusAPI"> <TabItem label="Dashboard">
+:::tip[Recommendation: Use custom rules instead]
+Cloudflare recommends that you create [custom rules](/waf/custom-rules/) instead of IP Access rules to perform IP-based or geography-based blocking (geoblocking).
+:::
 
-1. Log in to the [Cloudflare dashboard](https://dash.cloudflare.com), and select your account and domain.
+:::caution
+For [Spectrum](/spectrum/) applications configured with the non-HTTP/HTTPS application type, IP Access rules are the only supported mechanism for filtering traffic by IP address, IP range, country, or ASN. To use them, enable IP Access rules in your [Spectrum app configuration](/spectrum/reference/configuration-options/#ip-access-rules).
+:::
 
-2. Go to **Security** > **WAF** > **Tools**.
+<Tabs syncKey="dashNewNav"> <TabItem label="Dashboard" icon="rocket">
 
-3. Under **IP Access Rules**, enter the following details:
+:::note
+The **IP access rules** option appears only if you have configured at least one IP access rule.
+:::
 
-   1. For **Value**, enter an IP address, IP range, country code/name, or Autonomous System Number (ASN). For details, refer to [Parameters](/waf/tools/ip-access-rules/parameters/).
-   2. Select an [action](/waf/tools/ip-access-rules/actions/).
+<Steps>
+
+1. In the Cloudflare dashboard, go to the **Security rules** page.
+
+   <DashButton url="/?to=/:account/:zone/security/security-rules" />
+
+2. Select **Create rule** > **IP access rules**.
+
+3. Enter the following rule details:
+   1. For **IP, IP range, country name, or ASN**, enter an IP address, IP range, country code/name, or Autonomous System Number (ASN). For details, refer to [IP Access rules parameters](/waf/tools/ip-access-rules/parameters/).
+   2. For **Action**, select an [action](/waf/tools/ip-access-rules/actions/).
    3. For **Zone**, select whether the rule applies to the current website only or to all websites in the account.
    4. (Optional) Enter a note for the rule (for example, `Payment Gateway`).
 
-4. Select **Add**.
+4. Select **Create**.
+
+</Steps>
 
 </TabItem> <TabItem label="API">
 
-Use the Cloudflare API to programmatically create IP Access rules. For more information, refer to [Get IP Access rules](/api/resources/firewall/subresources/access_rules/methods/create/).
+Use the Cloudflare API to programmatically create IP access rules. For more information, refer to [Create an IP Access Rule](/api/resources/firewall/subresources/access_rules/methods/create/).
 
 </TabItem> </Tabs>

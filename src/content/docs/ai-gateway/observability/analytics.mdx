@@ -1,6 +1,11 @@
 ---
 title: Analytics
+description: View AI Gateway metrics for requests, tokens, caching, errors, and costs in the dashboard or via GraphQL.
 pcx_content_type: reference
+sidebar:
+  order: 2
+products:
+  - ai-gateway
 ---
 
 import { Render, TabItem, Tabs } from "~/components";
@@ -20,7 +25,7 @@ view the following analytics:
 
 <Tabs> <TabItem label="Dashboard">
 
-<Render file="analytics-dashboard" />
+<Render file="analytics-dashboard" product="ai-gateway" />
 
 </TabItem> <TabItem label="graphql">
 

@@ -1,25 +1,25 @@
-import type { CollectionEntry } from "astro:content";
 import { parse } from "node-html-parser";
-import { entryToString } from "./container";
-/*
-    1. If there is a `description` property in the frontmatter, return that.
-    2. If there is a `<p>...</p>` element in the HTML, return that.
-    3. Return `undefined` to signal to consumers there is no suitable description.
-*/
-export async function getPageDescription(
-	entry: CollectionEntry<"docs">,
-	locals: any,
-) {
-	if (entry.data.description) return entry.data.description;
+import he from "he";
+import { stripMarkdownToText } from "./markdown";
+import { EXTERNAL_LINK_ARROW } from "@cloudflare/nimbus-docs/markdown";
 
-	const html = await entryToString(entry, locals);
+// Parity: mirrors production's src/util/props.ts generateDescription (html
+// branch); reimplemented as a standalone function rather than reused.
 
-	if (!html) return undefined;
-
+export function generateDescriptionFromHtml(html: string): string | undefined {
 	const dom = parse(html);
-	const description = dom.querySelector(":root > p");
+	const paragraph = dom.querySelector(":root > p");
 
-	if (description) return description.innerText;
+	if (!paragraph) return undefined;
 
-	return undefined;
+	return he
+		.decode(paragraph.innerText)
+		.replaceAll(EXTERNAL_LINK_ARROW, "")
+		.trim();
+}
+
+// Parity: production strips Markdown from the description only for JSON-LD
+// (via Page.astro), leaving the raw string in <meta>/OG. No-op on plain text.
+export function stripMarkdownDescription(markdown: string): string {
+	return stripMarkdownToText(markdown);
 }

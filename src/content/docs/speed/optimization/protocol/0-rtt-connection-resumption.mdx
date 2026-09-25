@@ -1,11 +1,14 @@
 ---
 pcx_content_type: how-to
+description: Resume TLS connections faster with zero round-trip time.
+products:
+  - speed
 title: 0-RTT Connection Resumption
 sidebar:
   order: 5
 ---
 
-import { FeatureTable, TabItem, Tabs } from "~/components";
+import { TabItem, Tabs, DashButton } from "~/components";
 
 Zero round trip time resumption (0-RTT) improves performance for clients who have previously connected to your website, reducing latency for returning users. This feature is especially beneficial for those who frequently visit your application or connect over mobile networks.
 
@@ -17,7 +20,9 @@ For more information on 0-RTT, including its functionality and potential limitat
 
 ## Availability
 
-<FeatureTable id="network.0_rtt" />
+|  | Free | Pro | Business | Enterprise |
+| - | - | - | - | - |
+| Availability | Yes | Yes | Yes | Yes |
 
 ## Enable 0-RTT Connection Resumption
 
@@ -27,9 +32,11 @@ By default, 0-RTT Connection Resumption is not enabled on your Cloudflare applic
 
 To enable 0-RTT Connection Resumption in the dashboard:
 
-1. Log in to your [Cloudflare account](https://dash.cloudflare.com) and go to a specific domain.
-2. Navigate to **Speed > Optimization**.
-3. Navigate to the **Protocol Optimization** tab and under **0-RTT Connection Resumption**, switch the toggle to **On**.
+1. In the Cloudflare dashboard, go to the **Speed** > **Settings** page.
+
+   <DashButton url="/?to=/:account/:zone/speed/optimization" />
+
+2. Go to the **Protocol Optimization** tab and under **0-RTT Connection Resumption**, switch the toggle to **On**.
 
 </TabItem> <TabItem label="API">
 

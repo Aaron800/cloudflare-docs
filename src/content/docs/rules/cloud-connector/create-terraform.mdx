@@ -1,19 +1,33 @@
 ---
-title: Configure Cloud Connector using Terraform
+title: Configure Cloud Connector rules using Terraform
 pcx_content_type: how-to
+description: Create Cloud Connector rules using the Terraform Cloudflare provider.
+products:
+  - rules
 sidebar:
   order: 4
-  label: Configure using Terraform
-head:
-  - tag: title
-    content: Configure Cloud Connector using Terraform
+  label: Configure rules using Terraform
+tags:
+  - Terraform
+  - AWS
+  - Azure
 ---
+
+import { Render } from "~/components";
 
 You can create Cloud Connector rules using the [Terraform Cloudflare provider](https://registry.terraform.io/providers/cloudflare/cloudflare/latest).
 
-To get started with Terraform for Cloudflare configuration, refer to [Terraform: Get started](/terraform/installing/).
+To get started with Terraform for Cloudflare configuration, refer to [Get started](/terraform/installing/).
+
+## Required permissions
+
+The [API token](/fundamentals/api/get-started/create-token/) used by Terraform must have at least the following permission:
+
+- _Zone_ > _Cloud Connector_ > _Write_
 
 ## Example configuration
+
+<Render file="v4-code-snippets" product="terraform" />
 
 The following example Terraform configuration creates Cloud Connector rules for various [supported providers](/rules/cloud-connector/providers/) to route traffic between them based on URI paths:
 

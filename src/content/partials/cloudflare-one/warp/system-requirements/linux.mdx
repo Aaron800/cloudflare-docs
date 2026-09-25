@@ -5,11 +5,13 @@
 
 |                       |                                                                               |
 | --------------------- | ----------------------------------------------------------------------------- |
-| **OS version**        | CentOS 8, RHEL 8, Ubuntu 20.04, Ubuntu 22.04, Ubuntu 24.04, Debian 10, Debian 11, Debian 12 |
+| **OS version**        | RHEL 9 [^1], RHEL 10, Debian 12, Debian 13, Fedora 43, Fedora 44, Ubuntu 22.04 LTS, Ubuntu 24.04 LTS, Ubuntu 26.04 LTS |
 | **Processor**         | AMD64 / x86-64 or ARM64 / AArch64                                   |
 | **HD space**          | 75 MB                                                                         |
 | **Memory**            | 35 MB                                                                         |
-| **Network interface type**  | WIFI or LAN |
-| **Minimum MTU** | 1360 bytes[^1] |
+| **Network interface type**  | Wi-Fi or LAN |
+| **MTU** | 1381 bytes recommended [^2] |
 
-[^1]: WireGuard requires 1360 bytes for IPv6 and 1340 bytes for IPv4. MASQUE requires 1350 bytes for IPv6 and 1330 bytes for IPv4.
+[^1]: On RHEL 9 and later, enable the [Extra Packages for Enterprise Linux (EPEL)](https://docs.fedoraproject.org/en-US/epel/) repository (`sudo dnf install epel-release`) before installing `cloudflare-warp`. EPEL provides dependencies required by the client UI.
+
+[^2]: Minimum 1281 bytes with [Path MTU Discovery](/cloudflare-one/team-and-resources/devices/cloudflare-one-client/deployment/mdm-deployment/path-mtu-discovery/)
