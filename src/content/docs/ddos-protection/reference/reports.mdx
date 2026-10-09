@@ -1,25 +1,27 @@
 ---
 title: Reports
 pcx_content_type: reference
+description: View and share DDoS attack reports from the Cloudflare dashboard.
+products:
+  - ddos-protection
 sidebar:
   order: 3
 head:
   - tag: title
     content: DDoS reports
-
 ---
 
-import { Render } from "~/components"
+import { Render } from "~/components";
 
 To download an ad-hoc DDoS report, generate a PDF report file by selecting **Print report** in your [analytics dashboard](/ddos-protection/reference/analytics/).
 
-WAF/CDN customers can download a monthly report in Account Home > **Security Center**, by selecting [Security Reports](/security-center/app-security-reports/) and downloading the desired monthly report.
+WAF/CDN customers can download a monthly report in Account Home > **Security Center**, by selecting [Security Reports](/analytics/account-and-zone-analytics/app-security-reports/) and downloading the desired monthly report.
 
 Additionally, if you are a Magic Transit or Spectrum BYOIP customer, you will receive weekly DDoS reports by email with a snapshot of the DDoS attacks that Cloudflare detected and mitigated in the previous week.
 
 :::note[Note]
 
-To receive DDoS reports by email you must have opted in to the **Analytics** category in the [communication preferences](/fundamentals/setup/account/customize-account/communication-preference/) for your profile. 
+To receive DDoS reports by email you must have opted in to the **Analytics** category in the [communication preferences](/fundamentals/user-profiles/customize-account/#notifications) for your profile.
 :::
 
 ## Weekly DDoS reports
@@ -44,8 +46,8 @@ To receive real-time attack alerts, configure [DDoS alerts](/ddos-protection/ref
 :::note[Notes]
 
 - Information about top attack protocols, IP addresses, and destination ports is temporarily unavailable in weekly DDoS reports. Use the [Network Analytics dashboard](/analytics/network-analytics/) to get this information.
-- <Render file="alerts-and-reports-independent" />
-:::
+- <Render file="alerts-and-reports-independent" product="ddos-protection" />
+  :::
 
 ### Example report
 

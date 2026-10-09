@@ -1,57 +1,57 @@
 ---
 pcx_content_type: reference
+description: Reference information for HTTP test in Zero Trust analytics.
+products:
+  - cloudflare-one
 title: HTTP test
 sidebar:
   order: 1
-
+tags:
+  - Windows
+  - MacOS
+  - Linux
+  - Android
 ---
 
-
-import { Details } from "~/components"
+import { Details, Render } from "~/components";
 
 <Details header="Feature availability">
-
-| [WARP modes](/cloudflare-one/connections/connect-devices/warp/configure-warp/warp-modes/)   | [Zero Trust plans](https://www.cloudflare.com/teams-pricing/) |
+| [Client modes](/cloudflare-one/team-and-resources/devices/cloudflare-one-client/configure/modes/)    | [Zero Trust plans](https://www.cloudflare.com/teams-pricing/) |
 | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| <ul> <li> Gateway with WARP </li> <li> Secure Web Gateway without DNS Filtering </li> </ul> | All plans                                                     |
+| <ul> <li> Traffic and DNS mode </li> <li> Traffic only mode </li> </ul> | All plans                                                     |
 
-| System   | Availability | Minimum WARP version |
+| System   | Availability | Minimum client version |
 | -------- | ------------ | -------------------- |
-| Windows  | ✅            | 2023.3.381           |
-| macOS    | ✅            | 2023.3.381           |
-| Linux    | ✅            | 2023.3.398           |
-| iOS      | ❌            |                      |
-| Android  | ✅            | 1.0                  |
-| ChromeOS | ✅            | 1.0                  |
-
+| Windows  | ✅           | 2023.3.381           |
+| macOS    | ✅           | 2023.3.381           |
+| Linux    | ✅           | 2023.3.398           |
+| iOS      | ❌           |                      |
+| Android  | ✅           | 1.0                  |
+| ChromeOS | ✅           | 1.0                  |
 
 </Details>
 
-An HTTP test sends a `GET` request from an end-user device to a specific web application. You can use the response metrics to troubleshoot connectivity issues. For example, you can check whether the application is inaccessible for all users in your organization, or only certain ones.
+<Render file="dex/http-test-intro" product="cloudflare-one" />
+
+HTTP tests run periodically from devices that have the [Cloudflare One Client](/cloudflare-one/team-and-resources/devices/cloudflare-one-client/) installed and turned on. You can use them to verify that an internal application is reachable after a configuration change or to monitor a SaaS application for outages that affect your organization.
 
 ## Create a test
 
-To set up an HTTP test for an application:
-
-1. In [Zero Trust](https://one.dash.cloudflare.com/), go to **DEX** > **Tests**.
-2. Select **Add a Test**.
-3. Fill in the following fields:
-   * **Name**: Enter any name for the test.
-   * **Target**: Enter the URL of the website or application that you want to test (for example, `https://jira.site.com`). Both public and private hostnames are supported. If testing a private hostname, ensure that the domain is on your [local domain fallback](/cloudflare-one/connections/connect-devices/warp/configure-warp/route-traffic/local-domains/) list.
-   * **Source device profiles**: (Optional) Select the [WARP device profiles](/cloudflare-one/connections/connect-devices/warp/configure-warp/device-profiles/) that you want to run the test on. If no profiles are selected, the test will run on all supported devices connected to your Zero Trust organization.
-   * **Test type**: Select *HTTP Get*.
-   * **Test frequency**: Specify how often the test will run. Input a minute value between 5 and 60.
-4. Select **Add test**.
-
-Next, [view the results](/cloudflare-one/insights/dex/tests/view-results/) of your test.
+<Render file="dex/http-test-create-steps" product="cloudflare-one" />
 
 ## Test results
 
-An HTTP test measures the following data:
+<Render file="dex/http-test-results-metrics" product="cloudflare-one" />
 
-| Data                 | Description                                                                                                                                                             |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Resource fetch time  | Total time of all steps of the request, measured from [`startTime` to `responseEnd`](https://developer.mozilla.org/en-US/docs/Web/API/Performance_API/Resource_timing). |
-| Server response time | Round-trip time for the device to receive a response from the target.                                                                                                   |
-| DNS response time    | Round-trip time for the DNS query to resolve.                                                                                                                           |
-| HTTP status codes    | [Status code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) returned by the target.                                                                         |
+Use these metrics together to identify where in the connection a problem occurs. For example, a high DNS response time with a normal server response time points to a DNS resolution issue rather than a problem with the target server.
+
+## Export DEX application test logs
+
+<Render
+	file="dex/logpush-export-application-tests"
+	product="cloudflare-one"
+/>
+
+## Related resources
+
+- [DEX rules](/cloudflare-one/insights/dex/rules/) - Define which users or groups a test applies to, using selectors such as user email, user group, operating system, or managed network.

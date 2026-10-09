@@ -1,38 +1,39 @@
 ---
 pcx_content_type: concept
-type: overview
-title: API Discovery
+description: Map out and understand your API attack surface with Discovery.
+products:
+  - api-shield
+title: Discovery
 sidebar:
   order: 1
-
 ---
 
-import { GlossaryTooltip, Render } from "~/components"
+import { GlossaryTooltip, Steps, DashButton } from "~/components";
 
-Most development teams struggle to keep track of their APIs. Cloudflare API Discovery helps you map out and understand your attack surface area.
+Most development teams struggle to keep track of their APIs. Cloudflare Discovery helps you map out and understand your API attack surface — the full set of endpoints that could be targeted by attackers.
 
 ## Process
 
-Cloudflare produces a simple, trustworthy map of <GlossaryTooltip term="API endpoint">API endpoints</GlossaryTooltip> through a process of path normalization.
+Cloudflare produces a map of <GlossaryTooltip term="API endpoint">API endpoints</GlossaryTooltip> by applying heuristic path normalization to qualifying sampled traffic. The heuristics group requests by path structure and variable-like segment patterns.
 
 For example, you might have thousands of APIs, but a lot of the calls look similar, such as:
 
 - `api.example.com/profile/238`
 - `api.example.com/profile/392`
 
-Both paths serve a similar purpose — allowing users to log in to their accounts — but they are not identical. To simplify your endpoints, these examples might both map to `api.example.com/profile/*`.
+Discovery might group both paths as `api.example.com/profile/{var1}`. Generated `{varN}` placeholders identify variable-like segments. They do not assign semantic names.
 
-API Discovery runs this process across all your traffic, generating a simple map of endpoints that might look like:
+The resulting endpoint map might look like:
 
-```
-/api/login/{customer_identifier}
+```txt
+/api/login/{var1}
 /api/auth
-/api/account/{customer_identifier}
+/api/account/{var1}
 /api/password_reset
 /api/logout
 ```
 
-Similarly, if you have multiple subdomains that share the same set of endpoints, Cloudflare will consolidate subdomains:
+Cloudflare can also consolidate common normalized operations across compatible subdomains. Operations unique to one hostname can remain on that hostname.
 
 ```txt
 us-api.example.com/api/v1/users/{var1}
@@ -41,37 +42,61 @@ fr-api.example.com/api/v1/users/{var1}
 jp-api.example.com/api/v1/users/{var1}
 ```
 
-We will consolidate to `{hostVar1}.example.com/api/v1/users/{var1}`.
+Cloudflare may consolidate these common operations to `{hostVar1}.example.com/api/v1/users/{var1}`.
 
-<Render file="blog-post" />
+For more technical details, refer to the [blog post](https://blog.cloudflare.com/ml-api-discovery-and-schema-learning/).
 
-### Inbox view
+### Discovered operations
 
-API Shield first catalogs your discovered API endpoints in an email inbox-style view. From API Discovery, you can save endpoints to [Endpoint Management](/api-shield/management-and-monitoring/) or ignore endpoints to remove them from view.
+Discovery results can appear as candidate or shadow operations. Candidate operations are matched at the edge. Shadow operations are not.
 
-You should save all discovered API endpoints to Endpoint Management while ignoring any potential false positives in the API Discovery results by selecting **Save** or **Ignore** on each line. Alternatively, you can bulk-select endpoints to save or ignore. You can get started with saving endpoints by saving all endpoints with a variable. Search for `var1` in the search box and add all the resulting endpoints. You can examine endpoints without path variables for accuracy later on.
+When a request matches a published candidate, the match can provide operation context for logs, rules, analytics, and applicable detections. You do not need to save every discovered operation.
 
-By adding endpoints to Endpoint Management, you will unlock further [security](/api-shield/security/), [visibility](/api-shield/management-and-monitoring/#endpoint-performance-analysis), and [management](/api-shield/management-and-monitoring/) features of the platform. Endpoint Management monitors the health of your API endpoints by saving, updating, and monitoring performance metrics.
+You do not need to save every discovered operation. Save an operation to move it to the `full` state. Full operations support persisted API profiles, risk findings, and protections that require a known API endpoint.
 
-To restore any errantly ignored endpoints, you can filter by **Ignored** and select **Restore**.
+To save a discovered operation:
 
-Check back regularly for new API Discovery results. A badge with the number of endpoints needing review will show in the API Shield dashboard.
+<Steps>
+1. In the Cloudflare dashboard, go to the **Web Assets** page.
 
-:::note
+   <DashButton url="/?to=/:account/:zone/security/web-assets" />
+2. Go to the **Operations** tab.
+3. Open the row actions for a candidate or shadow operation.
+4. Select **Learn profile**.
+</Steps>
 
-Cloudflare will use your feedback on the ignored endpoints to better train the API Discovery Machine Learning model in a future release. 
-:::
+Cloudflare moves the operation to the `full` state. The row action then displays **Learning profile**, which does not indicate that learning is complete. For more information, refer to [Start profile learning](/security/web-assets/manage-operations/#start-profile-learning).
 
-### Machine Learning-based Discovery
+### Discovering operations
 
-Your API endpoints are discovered with both the Session Identifier-based Discovery and the Machine Learning-based Discovery.
+Discovery uses multiple signals, including machine learning and configured session identifiers, to identify API traffic. Configuring a session identifier is optional.
 
-To access Machine Learning-based Discovery, log in to the [Cloudflare dashboard](https://dash.cloudflare.com/) and select your account and domain. Go to **API Shield** > **Discovery**. You may filter the source results by `Session Identifier` or `Machine Learning` to view results from each Discovery method.
+To review Discovery results:
 
-If all of your zone’s API traffic contains the <GlossaryTooltip term="session identifier">session identifier</GlossaryTooltip> that you have configured, both sources may deliver the same results due to similarities between their underlying methodology. We expect Machine Learning-based Discovery to excel in discovering API traffic regardless of whether your API uses a session identifier.
+<Steps>
+1. In the Cloudflare dashboard, go to the **Web Assets** page.
 
-You can direct any feedback about your API Discovery results to your account team.
+   <DashButton url="/?to=/:account/:zone/security/web-assets" />
+2. Go to the **Operations** tab.
+3. Select the **Discovered** quick filter, which applies the **Candidate** and **Shadow** state filters. You can also select both states manually.
+</Steps>
+
+You can direct any feedback about your Discovery results to your account team.
+
+## Requirements
+
+Discovery requires an active API Shield subscription at both the account and zone level. If your subscription is active at the account level but not assigned to the zone, Discovery will not run for that zone.
+
+Discovery analyzes sampled proxied traffic. Eligible requests use supported HTTP methods, use paths outside `/cdn-cgi`, and contain qualifying Discovery signals.
+
+For an endpoint to appear in Discovery results, qualifying sampled traffic must meet the following conditions:
+
+- The request must return a `2xx` response code from the Cloudflare edge.
+- The request must not originate directly from a Cloudflare Worker. Traffic sent through the Cloudflare traffic simulator or other Worker-based test harnesses will not be counted toward Discovery thresholds.
+- The endpoint must receive at least 500 requests within a continuous 10-day period.
+
+For more information, refer to [Discovery requirements](/security/web-assets/manage-operations/#discovery-requirements/).
 
 ## Availability
 
-API Discovery is only available for Enterprise customers. If you are an Enterprise customer and interested in this product, contact your account team.
+Discovery requires the paid API Shield add-on, which is available to Enterprise customers. Contact your account team for more information.

@@ -1,7 +1,15 @@
 import { readFile, writeFile } from "fs/promises";
 import { optimize } from "svgo";
 import glob from "fast-glob";
-import { formatBytes } from "../src/util/helpers";
+function formatBytes(bytes: number, decimals = 2) {
+	if (bytes === 0) return "0 Bytes";
+	const k = 1024;
+	const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+	const i = Math.floor(Math.log(bytes) / Math.log(k));
+	return (
+		parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + " " + sizes[i]
+	);
+}
 
 async function run() {
 	const start = performance.now();
@@ -60,7 +68,7 @@ async function run() {
 	const end = performance.now();
 	const duration = end - start;
 	const seconds = Math.floor(duration / 1000);
-	console.log(`Optimized ${files.length} SVG files in ${seconds}s`);
+	console.log(`Optimized ${processed} SVG files in ${seconds}s`);
 	console.log(
 		`Original size: ~${formatBytes(originalSize)}, optimized size: ~${formatBytes(optimizedSize)}. Saved ~${formatBytes(originalSize - optimizedSize)}`,
 	);

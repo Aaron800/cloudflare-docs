@@ -1,13 +1,16 @@
 ---
 pcx_content_type: how-to
 title: Move hostnames
+products:
+  - cloudflare-for-saas
+tags:
+  - Migration
 sidebar:
   order: 3
 head:
   - tag: title
     content: Move hostnames between zones
 description: Learn how to move hostnames between different zones.
-
 ---
 
 As a SaaS provider, you may want, or have, multiple zones to manage hostnames. Each zone can have different configurations or origins, as well as correlate to varying products. You might shift custom hostnames between zones to enable or disable certain features. Cloudflare allows migration within the same account through the steps below:
@@ -70,6 +73,6 @@ The custom hostname can activate on the new zone even if the certificate is stil
 
 :::note
 
-Verify that the custom hostname successfully activated after the migration in the Cloudflare dashboard by selecting **SSL/TLS** > **Custom hostnames** > **`{your custom hostname}`**.
+Verify that the custom hostname successfully activated after the migration on the [**Custom Hostnames**](https://dash.cloudflare.com/?to=/:account/:zone/ssl-tls/custom-hostnames) page.
 
 :::

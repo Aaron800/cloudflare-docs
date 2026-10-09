@@ -1,12 +1,25 @@
 ---
 title: Replace insecure JS libraries
 pcx_content_type: reference
+description: Detect and notify about insecure JavaScript libraries on your site.
+products:
+  - waf
 head:
   - tag: title
     content: Replace insecure JavaScript libraries
+tags:
+  - JavaScript
+  - CSP
 ---
 
-import { GlossaryTooltip, TabItem, Tabs } from "~/components";
+import {
+	GlossaryTooltip,
+	Tabs,
+	TabItem,
+	Steps,
+	APIRequest,
+	DashButton,
+} from "~/components";
 
 This feature, when turned on, automatically rewrites URLs to external JavaScript libraries to point to Cloudflare-hosted libraries instead. This change improves security and performance, and reduces the risk of malicious code being injected.
 
@@ -24,6 +37,10 @@ Additionally, if you are defining a CSP via HTML `meta` tag, you must either tur
 
 When turned on, Cloudflare will check HTTP(S) proxied traffic for `script` tags with an `src` attribute pointing to a potentially insecure service and replace the `src` value with the equivalent link hosted under [cdnjs](https://cdnjs.cloudflare.com/).
 
+:::caution
+Replace insecure JavaScript libraries modifies eligible HTML responses. Cloudflare may decompress and recompress the response. When the transformation runs, Cloudflare removes headers such as `ETag` and `Content-Length`. For more information, refer to [Notes about end-to-end compression](/speed/optimization/content/compression/#notes-about-end-to-end-compression).
+:::
+
 The rewritten URL will keep the original URL scheme (`http://` or `https://`).
 
 For `polyfill.io` URL rewrites, all `3.*` versions of the `polyfill` library are supported under the `/v3` path. Additionally, the `/v2` path is also supported. If an unknown version is requested under the `/v3` path, Cloudflare will rewrite the URL to use the latest `3.*` version of the library (currently `3.111.0`).
@@ -38,21 +55,30 @@ The feature is available in all Cloudflare plans, and is turned on by default on
 
 <Tabs syncKey="dashPlusAPI"> <TabItem label="Dashboard">
 
-1. Log in to the [Cloudflare dashboard](https://dash.cloudflare.com) and select your account and zone.
-2. Go to **Security** > **Settings**.
-3. For **Replace insecure JavaScript libraries**, switch the toggle to **On** or **Off**.
+<Steps>
+
+1. In the Cloudflare dashboard, go to the Security **Settings** page.
+
+   <DashButton url="/?to=/:account/:zone/security/settings" />
+
+2. Turn **Replace insecure JavaScript libraries** on or off.
+
+</Steps>
 
 </TabItem> <TabItem label="API">
 
 Issue a `PATCH` request similar to the following:
 
-```bash
-curl --request PATCH \
-"https://api.cloudflare.com/client/v4/zones/{zone_id}/settings/replace_insecure_js" \
---header "Authorization: Bearer <API_TOKEN>" \
---header "Content-Type: application/json" \
---data '{ "value": "on" }'
-```
+<APIRequest
+	path="/zones/{zone_id}/settings/{setting_id}"
+	parameters={{
+		setting_id: "replace_insecure_js",
+	}}
+	method="PATCH"
+	json={{
+		value: "on",
+	}}
+/>
 
 </TabItem> </Tabs>
 

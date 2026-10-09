@@ -1,12 +1,14 @@
 ---
 pcx_content_type: overview
+description: Defer JavaScript loading to improve page rendering speed.
+products:
+  - speed
 title: Rocket Loader
 sidebar:
   order: 7
-
 ---
 
-import { DirectoryListing, FeatureTable, Render } from "~/components"
+import { DirectoryListing, Render } from "~/components";
 
 Rocket Loader prioritizes your website's content (text, images, fonts, and more) by deferring the loading of all of your JavaScript until after rendering.
 
@@ -14,10 +16,10 @@ This type of loading (known as asynchronous loading) leads to earlier rendering 
 
 On pages with JavaScript, this results in a [much faster loading experience](https://www.cloudflare.com/learning/performance/test-the-speed-of-a-website/) for your users and improves the following performance metrics:
 
-* Time to First Paint (TTFP)
-* Time to First Contentful Paint (TTFCP)
-* Time to First Meaningful Paint (TTFMP)
-* Document Load
+- Time to First Paint (TTFP)
+- Time to First Contentful Paint (TTFCP)
+- Time to First Meaningful Paint (TTFMP)
+- Document Load
 
 ## How to
 
@@ -25,7 +27,9 @@ On pages with JavaScript, this results in a [much faster loading experience](htt
 
 ## Availability
 
-<FeatureTable id="speed.rocket_loader" />
+|  | Free | Pro | Business | Enterprise |
+| - | - | - | - | - |
+| Availability | Yes | Yes | Yes | Yes |
 
 ## Limitations
 
@@ -33,4 +37,4 @@ Some of Cloudflare's optional features, including Rocket Loader and Email Obfusc
 
 If you observe JavaScript or jQuery issues for your website, [disable Rocket Loader](/speed/optimization/content/rocket-loader/enable/) and retest your website.
 
-<Render file="rocket-loader-csp" /> <br/>
+<Render file="rocket-loader-csp" product="speed" /> <br />

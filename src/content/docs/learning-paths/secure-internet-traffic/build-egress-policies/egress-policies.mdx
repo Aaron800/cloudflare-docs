@@ -3,6 +3,13 @@ title: Use egress policies to deliver consistent egress IPs
 pcx_content_type: learning-unit
 sidebar:
   order: 3
+description: Create egress policies for IP consistency.
+products:
+  - gateway
+  - cloudflare-one
+  - dlp
+  - casb
+  - browser-isolation
 ---
 
 import { Render } from "~/components";
@@ -12,17 +19,17 @@ import { Render } from "~/components";
 Only available on Enterprise plans.
 :::
 
-Egress policies allow you to determine whether your organization's traffic egresses via the default Cloudflare IP or via a [dedicated egress IP](/cloudflare-one/policies/gateway/egress-policies/dedicated-egress-ips/) assigned to your account.
+Egress policies allow you to determine whether your organization's traffic egresses via the default Cloudflare IP or via a [dedicated egress IP](/cloudflare-one/traffic-policies/egress-policies/dedicated-egress-ips/) assigned to your account.
 
 To create a new egress policy:
 
-1. In [Zero Trust](https://one.dash.cloudflare.com/), go to **Gateway** > **Egress policies**.
+1. In the [Cloudflare dashboard](https://dash.cloudflare.com/), go to **Zero Trust** > **Traffic policies** > **Egress policies**.
 
 2. Select **Add a policy**.
 
 3. Name the policy.
 
-4. Build a logical expression that defines the traffic you want to control egress for. For example, you can add a policy to configure all traffic destined for a thrid-party network to use a static source IP:
+4. Build a logical expression that defines the traffic you want to control egress for. For example, you can add a policy to configure all traffic destined for a third-party network to use a static source IP:
 
    <Render
    	file="gateway/policies/egress-destination-ip"
@@ -31,4 +38,4 @@ To create a new egress policy:
 
 5. Select **Create policy**.
 
-For more information, refer to [Egress policies](/cloudflare-one/policies/gateway/egress-policies/).
+For more information, refer to [Egress policies](/cloudflare-one/traffic-policies/egress-policies/).

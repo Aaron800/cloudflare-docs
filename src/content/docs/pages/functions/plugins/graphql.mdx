@@ -1,17 +1,20 @@
 ---
 pcx_content_type: concept
 title: GraphQL
+description: Set up a GraphQL server on Cloudflare Pages using the GraphQL Pages Plugin.
 sidebar:
   order: 1
+products:
+  - pages
 ---
+
+import { PackageManagers } from "~/components";
 
 The GraphQL Pages Plugin creates a GraphQL server which can respond to `application/json` and `application/graphql` `POST` requests. It responds with [the GraphQL Playground](https://github.com/graphql/graphql-playground) for `GET` requests.
 
 ## Installation
 
-```sh
-npm install @cloudflare/pages-plugin-graphql
-```
+<PackageManagers pkg="@cloudflare/pages-plugin-graphql" />
 
 ## Usage
 

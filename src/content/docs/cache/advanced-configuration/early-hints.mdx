@@ -1,14 +1,17 @@
 ---
 title: Early Hints
 pcx_content_type: concept
+description: Preload assets with 103 Early Hints to speed up page loads.
+products:
+  - cache
 
 ---
 
-import { FeatureTable } from "~/components"
+import { DashButton } from "~/components"
 
-Early Hints takes advantage of “server think time” to asynchronously send instructions to the browser to begin loading resources while the origin server is compiling the full response. By sending these hints to a browser before the full response is prepared, the browser can figure out how to load the webpage faster for the end user.
+When a browser requests a page, the origin server takes time to prepare the full response. Early Hints uses this wait time to send the browser a preliminary `103` response containing `Link` headers that tell the browser which assets it will need. The browser can start loading those assets before the full response arrives, which speeds up page loads.
 
-Formally, Early Hints is a [web standard](https://httpwg.org/specs/rfc8297.html) that defines a new HTTP status code (103 Early Hints) that defines new interactions between a client and server. 103s are served to clients while a 200 OK (or error) response is prepared, which is the “server think time.” You can enable Cloudflare's edge to cache and send 103 Early Hints responses with Link headers from your HTML pages. The response contains hints about which assets will likely be needed to fully render the webpage. This "hinting" speeds up page loads and generally reduces user-perceived latency.
+Early Hints is defined in [RFC 8297](https://httpwg.org/specs/rfc8297.html) as a new HTTP status code (`103 Early Hints`). Cloudflare caches and serves these `103` responses with `Link` headers from your HTML pages, reducing user-perceived latency.
 
 :::note[Note]
 
@@ -22,14 +25,18 @@ For more information about Early Hints, refer to the [Cloudflare](https://blog.c
 
 ## Availability
 
-<FeatureTable id="speed.early_hints" />
+|  | Free | Pro | Business | Enterprise |
+| - | - | - | - | - |
+| Availability | Yes | Yes | Yes | Yes |
 
 ## Enable Early Hints
 
-1. Log in to your [Cloudflare dashboard](https://dash.cloudflare.com) and select your domain.
-2. From the dashboard, select **Speed** > **Optimization**.
-3. Go to the **Content Optimization** tab.
-4. For **Early Hints**, toggle the switch to **On**.
+1. In the Cloudflare dashboard, go to the **Speed** > **Settings** page.
+
+   <DashButton url="/?to=/:account/:zone/speed/optimization" />
+
+2. Go to the **Content Optimization** tab.
+3. For **Early Hints**, toggle the switch to **On**.
 
 ## Generate Early Hints
 
@@ -37,7 +44,7 @@ Early Hints are only generated and cached:
 
 * For URIs with `.html`, `.htm`, or `.php` file extensions, or no file extension
 * On 200, 301, or 302 response return codes
-* When the response contains [link headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Link) with preconnect or preload rel types, such as `Link: </img/preloaded.png>; rel=preload`
+* When the response contains [link headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Link) with preconnect or preload rel types, such as `Link: </img/preloaded.png>; rel=preload`
 
 :::note
 
@@ -58,4 +65,4 @@ Additionally, keep the following in mind:
 * Early Hints responses may be emitted before reaching the origin server or Worker. When Early Hints is enabled and pages on your site require authentication, unauthenticated visitors may receive a 103 response. The 103 response would contain cached Link headers and be sent before a 403 Forbidden response from your origin.
 * Early Hints may be emitted less frequently on requests where the content is cacheable. Cloudflare CDN is more likely to retrieve a response header before the asynchronous Early Hints lookup finishes if the response has been cached. Cloudflare will not send a 103 response if the main response header is already available.
 * Cloudflare currently disables Early Hints on some User-Agents, for example, select search crawler bots that show incompatibility with 1xx responses.
-* You may see an influx of `504` responses with the `RequestSource` of `earlyHintsCache` in Cloudflare Logs when Early Hints is enabled, which is expected and benign. Requests from `earlyHintsCache` are internal subrequests for cached Early Hints, and they are neither end user requests, nor do they go to your origin. Their response status only indicates whether there are cached Early Hints for the request URI (`200` on cache HIT, `504` on cache MISS). These requests are already filtered out in other views, such as Cache Analytics. To filter out these requests or to filter requests by end users of your website only, please refer to [Filter end users](/analytics/graphql-api/features/filtering/#filter-end-users).
+* You may see an influx of `504` responses with `ClientRequestSource: earlyHintsCache` in Cloudflare Logs when Early Hints is enabled, which is expected and benign. Requests with this source are internal subrequests for cached Early Hints; they are neither end user requests, nor do they reach your origin. Their response status only indicates whether there are cached Early Hints for the request URI (`200` on cache HIT, `504` on cache MISS). These requests are already filtered out in other views, such as Cache Analytics. To filter them out of Log Explorer, use `ClientRequestSource != "earlyHintsCache"`. To filter using the GraphQL API, refer to [Filter end users](/analytics/graphql-api/features/filtering/#filter-end-users).

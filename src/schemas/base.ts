@@ -1,105 +1,101 @@
-import { z } from "astro:schema";
-import { BadgeConfigSchema } from "./types/badge";
+import { z } from "astro/zod";
+import { reference, type SchemaContext } from "astro:content";
 
-const spotlightAuthorDetails = z
-	.object({
-		author: z.string(),
-		author_bio_link: z.string().url(),
-		author_bio_source: z.string(),
-	})
-	.optional()
-	.describe(
-		"These are used to automatically add the SpotlightAuthorDetails component to the page. Refer to https://developers.cloudflare.com/style-guide/components/spotlight-author-details/.",
-	);
+import { sidebar } from "./types/sidebar";
 
-export const baseSchema = z.object({
-	pcx_content_type: z
-		.union([
-			z.literal("overview"),
-			z.literal("get-started"),
-			z.literal("how-to"),
-			z.literal("concept"),
-			z.literal("reference"),
-			z.literal("reference-architecture"),
-			z.literal("reference-architecture-diagram"),
-			z.literal("tutorial"),
-			z.literal("api"),
-			z.literal("troubleshooting"),
-			z.literal("faq"),
-			z.literal("integration-guide"),
-			z.literal("changelog"),
-			z.literal("configuration"),
-			z.literal("navigation"),
-			z.literal("example"),
-			z.literal("learning-unit"),
-			z.literal("design-guide"),
-			z.literal("video"),
-		])
-		.catch((ctx) => ctx.input)
-		.optional()
-		.describe(
-			"Refer to https://developers.cloudflare.com/style-guide/documentation-content-strategy/content-types/.",
-		),
-	content_type: z.string().optional(),
-	tags: z.string().array().optional(),
-	external_link: z
-		.string()
-		.optional()
-		.describe(
-			"Links to this page (i.e sidebar, directory listing) will instead appear as the provided link.",
-		),
-	difficulty: z
-		.union([
-			z.literal("Beginner"),
-			z.literal("Intermediate"),
-			z.literal("Advanced"),
-		])
-		.catch((ctx) => ctx.input)
-		.optional()
-		.describe(
-			"Difficulty is displayed as a column in the ListTutorials component.",
-		),
-	updated: z
-		.date()
-		.optional()
-		.describe(
-			"This is used to automatically add the LastReviewed component to a page. Refer to https://developers.cloudflare.com/style-guide/components/last-reviewed/.",
-		),
-	spotlight: spotlightAuthorDetails,
-	changelog_file_name: z.string().array().optional(),
-	changelog_product_area_name: z.string().optional(),
-	products: z.string().array().optional(),
-	languages: z.string().array().optional(),
-	summary: z.string().optional(),
-	goal: z.string().array().optional(),
-	operation: z.string().array().optional(),
-	sidebar: z
-		.object({
-			order: z.number().optional(),
-			label: z.string().optional(),
-			group: z
-				.object({
-					label: z
-						.string()
-						.optional()
-						.describe(
-							"Overrides the default 'Overview' label for index pages in the sidebar. Refer to https://developers.cloudflare.com/style-guide/frontmatter/sidebar/.",
-						),
-					hideIndex: z
-						.boolean()
-						.default(false)
-						.describe(
-							"Hides the index page from the sidebar. Refer to https://developers.cloudflare.com/style-guide/frontmatter/sidebar/.",
-						),
-					badge: BadgeConfigSchema(),
-				})
-				.optional(),
-		})
-		.optional(),
-	hideChildren: z
-		.boolean()
-		.optional()
-		.describe(
-			"Renders this group as a single link on the sidebar, to the index page. Refer to https://developers.cloudflare.com/style-guide/frontmatter/sidebar/.",
-		),
-});
+export const baseSchema = (_context: SchemaContext) =>
+	z.object({
+		pcx_content_type: z
+			.string()
+			.optional()
+			.describe(
+				"The purpose of the page, and defined through specific pages in [Content strategy](/style-guide/documentation-content-strategy/content-types/).",
+			),
+		tags: z
+			.string()
+			.array()
+			.optional()
+			.describe(
+				"A group of related keywords relating to the purpose of the page.",
+			),
+		external_link: z
+			.string()
+			.optional()
+			.describe(
+				"Path to another page in our docs or elsewhere. Used to add a crosslink entry to the lefthand navigation sidebar.",
+			),
+		difficulty: z
+			.string()
+			.optional()
+			.describe(
+				"Difficulty is displayed as a column in the [ListTutorials component](/style-guide/build-the-page/components/list-tutorials/).",
+			),
+		reviewed: z
+			.date()
+			.optional()
+			.describe(
+				"A `YYYY-MM-DD` value that signals when the page was last explicitly reviewed from beginning to end.",
+			),
+		release_notes_file_name: z
+			.string()
+			.array()
+			.optional()
+			.describe(
+				"Required for the [`ProductReleaseNotes`](/style-guide/build-the-page/components/usage/#productreleasenotes) component.",
+			),
+		products: z
+			.array(reference("directory"))
+			.default([])
+			.describe(
+				"The names of related directory entries (according to their file name in `src/content/directory`). Usually, these correspond to file paths, but not always, such as with `cloudflare-tunnel`",
+			),
+		summary: z
+			.string()
+			.optional()
+			.describe("Renders a summary description directly below the page title."),
+		noindex: z
+			.boolean()
+			.optional()
+			.describe(
+				"If true, this property adds a `noindex` declaration to the page, which will tell internal / external search crawlers to ignore this page. Helpful for pages that are historically accurate, but no longer recommended, such as [Workers Sites](/workers/configuration/sites/).",
+			),
+		sidebar,
+		hideChildren: z
+			.boolean()
+			.optional()
+			.describe(
+				"Renders this group as a single link on the sidebar, to the index page. Refer to [Sidebar](https://developers.cloudflare.com/style-guide/build-the-page/frontmatter/sidebar/).",
+			),
+		styleGuide: z
+			.object({
+				component: z.string(),
+			})
+			.optional()
+			.describe(
+				"Used by overrides for style guide component documentation, which helps us display the [usage counts](/style-guide/build-the-page/components/usage/) for components directly on the component page itself.",
+			),
+		banner: z
+			.object({
+				content: z.string(),
+				type: z
+					.enum(["default", "note", "tip", "caution", "danger"])
+					.optional()
+					.default("default"),
+			})
+			.optional()
+			.describe(
+				"Displays a [Banner](https://developers.cloudflare.com/style-guide/build-the-page/frontmatter/banner/) on the current docs page.",
+			),
+		feedback: z
+			.boolean()
+			.default(true)
+			.describe(
+				"Whether to show the FeedbackPrompt on the page, defaults to true",
+			),
+		canonical: z
+			.string()
+			.optional()
+			.describe(
+				'A canonical URL or path to set as the `<link rel="canonical">` in the page `<head>`, overriding the default derived from the page URL.',
+			),
+	});

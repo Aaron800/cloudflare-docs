@@ -1,12 +1,14 @@
 ---
 pcx_content_type: concept
 title: Early Hints
-
+description: Improve page load performance on Cloudflare Pages with Early Hints for preloading assets.
+products:
+  - pages
 ---
 
 [Early Hints](/cache/advanced-configuration/early-hints/) help the browser to load webpages faster. Early Hints is enabled automatically on all `pages.dev` domains and custom domains.
 
-Early Hints automatically caches any [`preload`](https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types/preload) and [`preconnect`](https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types/preconnect) type [`Link` headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Link) to send as Early Hints to the browser. The hints are sent to the browser before the full response is prepared, and the browser can figure out how to load the webpage faster for the end user. There are two ways to create these `Link` headers in Pages:
+Early Hints automatically caches any [`preload`](https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types/preload) and [`preconnect`](https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types/preconnect) type [`Link` headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Link) to send as Early Hints to the browser. The hints are sent to the browser before the full response is prepared, and the browser can figure out how to load the webpage faster for the end user. There are two ways to create these `Link` headers in Pages:
 
 ## Configure Early Hints
 
@@ -27,9 +29,9 @@ Pages will attach this `Link: </styles.css>; rel=preload; as=style` header. Earl
 
 In order to make the authoring experience easier, Pages also automatically generates `Link` headers from any `<link>` HTML elements with the following attributes:
 
-* `href`
-* `as` (optional)
-* `rel` (one of `preconnect`, `preload`, or `modulepreload`)
+- `href`
+- `as` (optional)
+- `rel` (one of `preconnect`, `preload`, or `modulepreload`)
 
 `<link>` elements which contain any other additional attributes (for example, `fetchpriority`, `crossorigin` or `data-do-not-generate-a-link-header`) will not be used to generate `Link` headers in order to prevent accidentally losing any custom prioritization logic that would otherwise be dropped as an Early Hint.
 
@@ -37,10 +39,10 @@ This allows you to directly create Early Hints as you are writing your document,
 
 ```html
 <html>
-  <head>
-    <link rel="preload" href="/style.css" as="style" />
-    <link rel="stylesheet" href="/style.css" />
-  </head>
+	<head>
+		<link rel="preload" href="/style.css" as="style" />
+		<link rel="stylesheet" href="/style.css" />
+	</head>
 </html>
 ```
 
@@ -55,8 +57,30 @@ Remove any automatically generated `Link` headers by adding the following to you
 
 :::caution
 
-
 Automatic `Link` header generation should not have any negative performance impact on your website. If you need to disable this feature, contact us by letting us know about your circumstance in our [Discord server](https://discord.com/invite/cloudflaredev).
 
+:::
+
+## Early Hints probes in logs
+
+Cloudflare automatically runs Early Hints probe requests on all Pages domains, including custom domains. These probes appear in your Cloudflare logs with `ClientRequestSource: earlyHintsCache` and a `ClientRequestUserAgent` of `nginx-ssl early hints` or `bastion early hints`.
+
+A `504` response on a probe means no Early Hint has been cached for that URL yet (a cache miss). A `200` means a cached Early Hint was served. These probes are internal Cloudflare subrequests — they do not reach your Pages project or origin server and have no impact on end users.
+
+:::note
+
+Early Hints is always enabled for Cloudflare Pages. The zone-level Early Hints setting does not apply to Pages domains or custom domains.
 
 :::
+
+### Filter probes from logs
+
+To exclude Early Hints probes from Log Explorer queries or alert rules, filter on `ClientRequestSource != "earlyHintsCache"`.
+
+### Reduce probe cache misses
+
+Probes return `504` when Cloudflare has no `Link` headers cached for a URL. To convert cache misses to hits and reduce `504` volume in your logs, configure `Link` headers in your Pages project using either the [`_headers` file](/pages/configuration/headers/) or automatic `Link` header generation from HTML elements.
+
+### Disable Early Hints on Pages
+
+Early Hints cannot be disabled for Cloudflare Pages. If you need full control over the Early Hints setting, [migrate your project from Pages to Workers](/workers/static-assets/migration-guides/migrate-from-pages/). Workers respects the zone-level Early Hints setting.

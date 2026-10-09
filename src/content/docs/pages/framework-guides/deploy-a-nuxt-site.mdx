@@ -3,6 +3,8 @@ pcx_content_type: how-to
 title: Nuxt
 head: []
 description: Web framework making Vue.js-based development simple and powerful.
+products:
+  - pages
 ---
 
 import {
@@ -11,13 +13,17 @@ import {
 	TabItem,
 	Tabs,
 	ResourcesBySelector,
-	ExternalResources,
 	PackageManagers,
+	YouTube,
 } from "~/components";
 
 [Nuxt](https://nuxt.com) is a web framework making Vue.js-based development simple and powerful.
 
 In this guide, you will create a new Nuxt application and deploy it using Cloudflare Pages.
+
+### Video Tutorial
+
+<YouTube id="er5PXTI9rXo" />
 
 ## Create a new project using the `create-cloudflare` CLI (C3)
 
@@ -26,7 +32,7 @@ The [`create-cloudflare` CLI (C3)](/pages/get-started/c3/) will configure your N
 <PackageManagers
 	type="create"
 	pkg="cloudflare@latest"
-	args="my-nuxt-app --framework=nuxt"
+	args="my-nuxt-app --framework=nuxt --platform=pages"
 />
 
 C3 will ask you a series of setup questions and create a new project with [`nuxi` (the official Nuxt CLI)](https://github.com/nuxt/cli). C3 will also install the necessary adapters along with the [Wrangler CLI](/workers/wrangler/install-and-update/#check-your-wrangler-version).
@@ -49,11 +55,11 @@ The initial deployment created via C3 is referred to as a [Direct Upload](/pages
 
 To deploy a Nuxt project without C3, follow the [Nuxt Get Started guide](https://nuxt.com/docs/getting-started/installation). After you have set up your Nuxt project, choose either the [Git integration guide](/pages/get-started/git-integration/) or [Direct Upload guide](/pages/get-started/direct-upload/) to deploy your Nuxt project on Cloudflare Pages.
 
-<Render file="framework-guides/git-integration" />
+<Render file="framework-guides/git-integration" product="pages" />
 
 ### Create a GitHub repository
 
-<Render file="framework-guides/create-gh-repo" />
+<Render file="framework-guides/create-gh-repo" product="pages" />
 
 ```sh
 # Skip the following three commands if you have built your application
@@ -69,18 +75,13 @@ git push -u origin main
 
 ### Create a Pages project
 
-1. Log in to the [Cloudflare dashboard](https://dash.cloudflare.com/) and select your account.
-2. Go to **Workers & Pages** > **Create application** > **Pages** > **Connect to Git** and create a new Pages project.
-
-You will be asked to authorize access to your GitHub account if you have not already done so. Cloudflare needs this so that it can monitor and deploy your projects from the source. You may narrow access to specific repositories if you prefer; however, you will have to manually update this list [within your GitHub settings](https://github.com/settings/installations) when you want to add more repositories to Cloudflare Pages.
-
-3. Select the new GitHub repository that you created and, in the **Set up builds and deployments** section, provide the following information:
+<Render file="deploy-to-pages-steps-no-preset" product="pages" />
 
 <PagesBuildPreset framework="nuxt-js" />
 
 Optionally, you can customize the **Project name** field. It defaults to the GitHub repository's name, but it does not need to match. The **Project name** value is assigned as your `*.pages.dev` subdomain.
 
-4. After completing configuration, select the **Save and Deploy**.
+7. After completing configuration, select the **Save and Deploy**.
 
 Review your first deploy pipeline in progress. Pages installs all dependencies and builds the project as specified. Cloudflare Pages will automatically rebuild your project and deploy it on every new pushed commit.
 
@@ -102,11 +103,11 @@ export default defineNuxtConfig({
 });
 ```
 
-This module is powered by the [`getPlatformProxy` helper function](/workers/wrangler/api#getplatformproxy). `getPlatformProxy` will automatically detect any bindings defined in your project's `wrangler.toml` file and emulate those bindings in local development. Review [Wrangler configuration information on bindings](/workers/wrangler/configuration/#bindings) for more information on how to configure bindings in `wrangler.toml`.
+This module is powered by the [`getPlatformProxy` helper function](/workers/wrangler/api#getplatformproxy). `getPlatformProxy` will automatically detect any bindings defined in your project's Wrangler configuration file and emulate those bindings in local development. Review [Wrangler configuration information on bindings](/workers/wrangler/configuration/#bindings) for more information on how to configure bindings in the [Wrangler configuration file](/workers/wrangler/configuration/).
 
 :::note
 
-`wrangler.toml` is currently **only** used for local development. Bindings specified in it are not available remotely.
+Wrangler configuration is used primarily for local development. Bindings specified in it are not available remotely, unless they are created as [remote bindings](/workers/local-development/#remote-bindings).
 
 :::
 
@@ -116,18 +117,11 @@ In order to access bindings in a deployed application, you will need to [configu
 
 ### Add bindings to TypeScript projects
 
-To get proper type support, you need to create a new `env.d.ts` file in the root of your project and declare a [binding](/pages/functions/bindings/).
+To get proper type support, you need to create a new `env.d.ts` file in the root of your project and declare a [binding](/pages/functions/bindings/). Make sure you have generated Cloudflare runtime types by running [`wrangler types`](/pages/functions/typescript/).
 
 The following is an example of adding a `KVNamespace` binding:
 
 ```ts null {9}
-import {
-	CfProperties,
-	Request,
-	ExecutionContext,
-	KVNamespace,
-} from "@cloudflare/workers-types";
-
 declare module "h3" {
 	interface H3EventContext {
 		cf: CfProperties;
@@ -174,18 +168,8 @@ export default defineEventHandler(({ context }) => {
 
 </TabItem> </Tabs>
 
-<Render file="framework-guides/learn-more" params={{ one: "Nuxt" }} />
-
-## Related resources
-
-### Tutorials
-
-For more tutorials involving Nuxt, refer to the following resources:
-
-<ResourcesBySelector tags={["Nuxt"]} types={["tutorial"]} />
-
-### Demo apps
-
-For demo applications using Nuxt, refer to the following resources:
-
-<ExternalResources tags={["Nuxt"]} type="apps" />
+<Render
+	file="framework-guides/learn-more"
+	product="pages"
+	params={{ one: "Nuxt" }}
+/>

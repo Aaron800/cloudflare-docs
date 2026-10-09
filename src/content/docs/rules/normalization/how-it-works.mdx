@@ -1,10 +1,15 @@
 ---
 title: How URL normalization works
 pcx_content_type: concept
+description: How URL normalization modifies incoming request URIs before rule evaluation.
+products:
+  - rules
 sidebar:
   order: 3
   label: How it works
 ---
+
+import { Steps } from "~/components";
 
 URL normalization modifies separators, encoded elements, and literal bytes in incoming URLs so that they conform to a consistent formatting standard.
 
@@ -23,7 +28,7 @@ For examples of the different settings and their impact on request URLs, refer t
 
 The URL normalization performed according to [RFC 3986](https://www.ietf.org/rfc/rfc3986.txt) is as follows:
 
-- The following unreserved characters are [percent decoded](https://tools.ietf.org/html/rfc3986#section-2.1):
+- The following unreserved characters are [percent decoded](https://tools.ietf.org/html/rfc3986#section-2.1) (converted from their `%XX` encoded form back to the original character):
   - Alphabetical characters: `a`-`z`, `A`-`Z` (decoded from `%41`-`%5A` and `%61`-`%7A`)
   - Digit characters: `0`-`9` (decoded from `%30`-`%39`)
   - hyphen `-` (`%2D`), period `.` (`%2E`), underscore `_` (`%5F`), and tilde `~` (`%7E`)
@@ -36,6 +41,10 @@ The URL normalization performed according to [RFC 3986](https://www.ietf.org/rfc
 
 When using the Cloudflare URL normalization, some extra normalization techniques will be applied to URLs of incoming requests, in the following order:
 
+<Steps>
+
 1. Normalize back slashes (`\`) into forward slashes (`/`).
 2. Merge successive forward slashes (for example, `//` will be normalized to `/`).
 3. Perform [RFC 3986 normalization](#rfc-3986-normalization) of the resulting URL.
+
+</Steps>

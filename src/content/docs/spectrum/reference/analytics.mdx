@@ -1,11 +1,15 @@
 ---
 pcx_content_type: reference
 title: Analytics
+description: Metrics tracked for every Spectrum connection, including bytes and connection duration.
+products:
+  - spectrum
 weight: 0
-
+tags:
+  - Analytics
 ---
 
-import { Render } from "~/components"
+import { Render, APIRequest } from "~/components"
 
 Cloudflare measures the following metrics for every connection.
 
@@ -68,8 +72,8 @@ Use the operators below to filter data.
 * DIMENSIONS can be used to break down the data by given attributes
 * FILTERS used to filter rows by one or more dimensions (see Filters section below)
 * SORT is the sort order for the result set; sort fields must be included in METRICS or DIMENSIONS
-* TO\_TS is that end of time interval to query, defaults to current time
-* FROM\_TS is that start of time interval to query, defaults to TO\_TS - 6 hours
+* TO\_TS is the end of time interval to query, defaults to current time
+* FROM\_TS is the start of time interval to query, defaults to TO\_TS - 6 hours
 * STEP is used to select time series resolution when using endpoint:
 * auto or omitted - selects time step most appropriate to time interval
   * year
@@ -81,10 +85,9 @@ Use the operators below to filter data.
 
 ## Analytics query example
 
-```bash
-curl "https://api.cloudflare.com/client/v4/zones/{zone_id}/spectrum/analytics/events/summary?metrics=count&dimensions=event,appID&since=2018-01-01T16:57:00Z" \
---header "X-Auth-Email: <EMAIL>" \
---header "X-Auth-Key: <API_KEY>"
-```
+<APIRequest
+  path="/zones/{zone_id}/spectrum/analytics/events/summary"
+  method="GET"
+/>
 
 Refer to the [Spectrum API documentation](/api/resources/spectrum/subresources/analytics/subresources/aggregates/subresources/currents/methods/get/) for more examples of API requests.

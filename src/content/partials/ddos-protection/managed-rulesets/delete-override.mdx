@@ -1,13 +1,19 @@
 ---
-inputParameters: selectAccountWebsite;;dashboardLocation
-
+params:
+  - dashButtonUrl
+  - dashPage
+  - dashTab
 ---
 
-import { Markdown } from "~/components"
+import { Steps, DashButton } from "~/components";
 
-## Delete a DDoS override
+### Delete a DDoS override
 
-1. Log in to the [Cloudflare dashboard](https://dash.cloudflare.com/), and {props.one}.
-2. Go to **{props.two}**.
-3. Next to the DDoS override you wish to delete, select **Delete**.
-4. Select **Delete** to confirm the operation.
+<Steps>
+1. In the Cloudflare dashboard, go to the **{props.dashPage}** page.
+
+    <DashButton url={props.dashButtonUrl} />
+2. Go to the **{props.dashTab}** tab.
+3. Select the override.
+4. Select **Delete deployment**.
+</Steps>

@@ -1,11 +1,18 @@
 ---
-type: overview
 pcx_content_type: navigation
-title: Examples
+title: Compression Rules examples
+description: Example Compression Rules for Brotli, Gzip, and Zstandard configurations.
+products:
+  - rules
 sidebar:
   order: 10
+  group:
+    label: Examples
 ---
 
-import { ListExamples } from "~/components";
+import { ResourcesBySelector } from "~/components";
 
-<ListExamples directory="rules/compression-rules/examples/" />
+<ResourcesBySelector
+	directory="rules/compression-rules/examples/"
+	types={["example"]}
+/>

@@ -3,31 +3,51 @@
 
 ---
 
-import { GlossaryTooltip, Tabs, TabItem } from "~/components"
+import { GlossaryTooltip, Tabs, TabItem, Render, Details } from "~/components"
+
+<Details header="Certificate requirements">
+   <Render file="byo-ca-mtls-cert-requirements" product="ssl" />
+</Details>
 
 To check for an mTLS certificate:
 
 <Tabs syncKey="dashPlusAPI"> <TabItem label="Dashboard">
 
-1. [Add an mTLS certificate](/cloudflare-one/identity/devices/access-integrations/mutual-tls-authentication/#add-mtls-authentication-to-your-access-configuration) to your account. You can generate a sample certificate using the [Cloudflare PKI toolkit](/cloudflare-one/identity/devices/access-integrations/mutual-tls-authentication/#test-mtls-using-cloudflare-pki).
+1. In the [Cloudflare dashboard](https://dash.cloudflare.com/), go to **Zero Trust** > **Access controls** > **Service credentials** > **Mutual TLS**.
 
-2. In **Associated hostnames**, enter your Zero Trust <GlossaryTooltip term="team domain">team domain</GlossaryTooltip>: `<team-name>.cloudflareaccess.com`
+2. Select **Add mTLS Certificate**.
 
-3. In your [device enrollment permissions](#set-device-enrollment-permissions), add a *Common Name* or *Valid Certificate* rule. For example, the following policy requires a client certificate with a specific common name:
+3. Enter any name for the root CA.
+
+4. In **Certificate content**, paste the contents of your root CA.
+
+	If the client certificate is directly signed by the root CA, you only need to upload the root. If the client certificate is signed by an intermediate certificate, you must upload the entire CA chain (intermediate and root). For example:
+	```txt
+	-----BEGIN CERTIFICATE-----
+	<intermediate.pem>
+	-----END CERTIFICATE-----
+	-----BEGIN CERTIFICATE-----
+	<rootCA.pem>
+	-----END CERTIFICATE-----
+	```
+
+5. In **Associated hostnames**, enter your Zero Trust <GlossaryTooltip term="team domain">team domain</GlossaryTooltip>: `<team-name>.cloudflareaccess.com`
+
+6. In your [device enrollment permissions](#set-device-enrollment-permissions), add a *Common Name* or *Valid Certificate* rule. For example, the following policy requires a client certificate with a specific common name:
 
    | Action | Rule type | Selector    | Value                |
    | ------ | --------- | ----------- | -------------------- |
    | Allow  | Require   | Common Name | `<CERT-COMMON-NAME>` |
 
-4. On your device, add the client certificate to the [system keychain](/cloudflare-one/identity/devices/access-integrations/mutual-tls-authentication/#test-in-the-browser).
+7. On your device, add the client certificate to the [system keychain](/cloudflare-one/access-controls/service-credentials/mutual-tls-authentication/#test-in-the-browser).
 
-</TabItem> <TabItem label="Terraform">
+</TabItem> <TabItem label="Terraform (v5)">
 
-1. Add the following permissions to your [`cloudflare_api_token`](https://registry.terraform.io/providers/cloudflare/cloudflare/4.40.0/docs/resources/api_token):
+1. Add the following permissions to your [`cloudflare_api_token`](https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs/resources/api_token):
 	- `Access: Mutual TLS Certificates Write`
 	- `Access: Apps and Policies Write`
 
-2. Use the [`cloudflare_zero_trust_access_mtls_certificate`](https://registry.terraform.io/providers/cloudflare/cloudflare/4.40.0/docs/resources/zero_trust_access_mtls_certificate) resource to add an mTLS certificate to your account:
+2. Use the [`cloudflare_zero_trust_access_mtls_certificate`](https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs/resources/zero_trust_access_mtls_certificate) resource to add an mTLS certificate to your account:
 
 	```tf
 	resource "cloudflare_zero_trust_access_mtls_certificate" "example_mtls_cert" {
@@ -43,26 +63,38 @@ To check for an mTLS certificate:
 	}
 	```
 
-3. Add the following policy to your [WARP enrollment Access application](/cloudflare-one/connections/connect-devices/warp/deployment/device-enrollment/#set-device-enrollment-permissions):
+3. Create the following Access policy:
 
 	```tf
-	resource "cloudflare_zero_trust_access_policy" "warp_enrollment_employees" {
-		application_id = cloudflare_zero_trust_access_application.warp_enrollment_app.id
+	resource "cloudflare_zero_trust_access_policy" "warp_enrollment_mtls" {
 		account_id     = var.cloudflare_account_id
-		name           = "Allow company emails"
+		name           = "Allow employees with mTLS cert"
 		decision       = "allow"
-		precedence     = 1
+		include = [
+			{
+				email_domain = {
+					domain = "@example.com"
+				}
+			}
+		]
 
-		include {
-			email_domain = ["company.com"]
-		}
-
-		require {
-			common_names = ["Common name 1", "Common name 2"]
-		}
+		require = [
+			{
+				common_name = {
+					common_name = "Common name 1"
+				}
+			},
+					{
+				common_name = {
+					common_name = "Common name 2"
+				}
+			}
+		]
 	}
 	```
 
-4. On your device, add the client certificate to the [system keychain](/cloudflare-one/identity/devices/access-integrations/mutual-tls-authentication/#test-in-the-browser).
+4. Add the policy to your [`cloudflared_zero_trust_access_application` for the Cloudflare One Client](/cloudflare-one/team-and-resources/devices/cloudflare-one-client/deployment/device-enrollment/#set-device-enrollment-permissions).
+
+5. On your device, add the client certificate to the [system keychain](/cloudflare-one/access-controls/service-credentials/mutual-tls-authentication/#test-in-the-browser).
 
 </TabItem> </Tabs>

@@ -1,12 +1,15 @@
 ---
 pcx_content_type: faq
+description: Answers to common questions about Cloudflare Zaraz.
+products:
+  - zaraz
 title: FAQ
 structured_data: true
 sidebar:
   order: 10
 ---
 
-import { GlossaryTooltip } from "~/components";
+import { DashButton, GlossaryTooltip } from "~/components";
 
 Below you will find answers to our most commonly asked questions. If you cannot find the answer you are looking for, refer to the [community page](https://community.cloudflare.com/) or [Discord channel](https://discord.cloudflare.com) to explore additional resources.
 
@@ -35,7 +38,7 @@ To check if the script is loading correctly, follow these steps:
 
 If Zaraz is not loading, please verify the following:
 
-- The domain running Zaraz [is proxied by Cloudflare](/dns/manage-dns-records/reference/proxied-dns-records/).
+- The domain running Zaraz [is proxied by Cloudflare](/dns/proxy-status/).
 - Auto Injection is enabled in your [Zaraz Settings](/zaraz/reference/settings/#auto-inject-script).
 - Your website's HTML is valid and includes `<head>` and `</head>` tags.
 - You have at least [one enabled tool](/zaraz/get-started/) configured in Zaraz.
@@ -54,15 +57,15 @@ We recommend disabling [Rocket Loader](/speed/optimization/content/rocket-loader
 
 #### Is Zaraz compatible with Content Security Policies (CSP)?
 
-Yes. To learn more about how Zaraz works to be compatible with <GlossaryTooltip term="content security policy (CSP)">CSP</GlossaryTooltip> configurations, refer to the [Cloudflare Zaraz supports CSP](https://blog.cloudflare.com/cloudflare-zaraz-supports-csp/) blog post.
+Yes. To learn more about how Zaraz compatibility with [<GlossaryTooltip term="content security policy (CSP)">CSP</GlossaryTooltip>](/fundamentals/reference/policies-compliances/content-security-policies/) configurations works, refer to the [Cloudflare Zaraz supports CSP](https://blog.cloudflare.com/cloudflare-zaraz-supports-csp/) blog post.
 
 #### Does Cloudflare process my HTML, removing existing scripts and then injecting Zaraz?
 
 Cloudflare Zaraz does not remove other third-party scripts from the page. Zaraz [can be auto-injected or not](/zaraz/reference/settings/#auto-inject-script), depending on your configuration, but if you have existing scripts that you intend to load with Zaraz, you should remove them.
 
-#### Does Zaraz work with Cloudflare Page Shield?
+#### Does Zaraz work with Cloudflare's client-side security?
 
-Yes. Refer to [Page Shield](/page-shield/) for more information related to this product.
+Yes. Refer to [client-side security](/client-side-security/) (formerly known as Page Shield) for more information related to this product.
 
 #### Is there a way to prevent Zaraz from loading on specific pages, like under `/wp-admin`?
 
@@ -72,8 +75,11 @@ To prevent Zaraz from loading on specific pages, refer to [Load Zaraz selectivel
 
 Resetting your Zaraz configuration will erase all of your configuration settings, including any tools, triggers, and variables you've set up. This action will disable Zaraz immediately. If you want to start over with a clean slate, you can always reset your configuration.
 
-1. Log in to the [Cloudflare dashboard](https://dash.cloudflare.com/), and select your account and domain.
-2. Go to **Zaraz** > **Settings** > **Advanced**.
+1. In the Cloudflare dashboard, go to the **Settings** page.
+
+   <DashButton url="/?to=/:account/tag-management/settings" />
+
+2. Go to **Advanced**.
 3. Click "Reset" and follow the instructions.
 
 ### Zaraz Web API

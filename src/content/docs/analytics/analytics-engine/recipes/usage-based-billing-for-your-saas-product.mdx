@@ -8,7 +8,8 @@ head:
     content: Usage-based billing
 description: How to use Workers Analytics Engine to build usage-based billing
   into your SaaS product
-
+products:
+  - workers-analytics-engine
 ---
 
 Many Cloudflare customers run software-as-a-service products with multiple customers. A big concern for such companies is understanding the cost of each customer, and understanding customer behaviour more widely.
@@ -62,7 +63,7 @@ FROM
 GROUP BY customer_id, request_endpoint
 ```
 
-This can give you insights into what endpoints different customers are using. This can be useful for business purposes (for example, understanding customer needs) as well for for your engineers to see activity and behaviour (observability).
+This can give you insights into what endpoints different customers are using. This can be useful for business purposes (for example, understanding customer needs) as well as for your engineers to see activity and behaviour (observability).
 
 ## Billing customers
 

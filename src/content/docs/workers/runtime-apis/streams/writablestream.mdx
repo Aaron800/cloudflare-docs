@@ -1,7 +1,10 @@
 ---
 pcx_content_type: configuration
 title: WritableStream
+description: Use the WritableStream API in Workers to write data to a stream destination.
 
+products:
+  - workers
 ---
 
 ## Background
@@ -46,7 +49,7 @@ Refer to the [WritableStreamDefaultWriter](/workers/runtime-apis/streams/writabl
 
   :::caution[Warning]
 
-  Any data not yet written is lost upon abort. 
+  Any data not yet written is lost upon abort.
   :::
 
 * `getWriter()` : WritableStreamDefaultWriter

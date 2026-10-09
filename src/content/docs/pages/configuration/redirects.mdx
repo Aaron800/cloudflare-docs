@@ -1,18 +1,24 @@
 ---
 pcx_content_type: concept
 title: Redirects
-
+description: Define URL redirects for your Cloudflare Pages site using a _redirects file.
+products:
+  - pages
 ---
 
-import { Render } from "~/components"
+import { Render, Type, MetaInfo } from "~/components";
 
-To use redirects on Cloudflare Pages, declare your redirects in a plain text file called `_redirects` without a file extension, in the output folder of your project. The [build output folder](/pages/configuration/build-configuration/) is project-specific, so the `_redirects` file should not always be in the root directory of the repository. Changes to redirects will be updated to your website at build time so make sure you commit and push the file to trigger a new build each time you update redirects.
+To apply custom redirects on Cloudflare Pages, declare your redirects in a plain text file called `_redirects` without a file extension, in the static asset directory of your project. This file will not itself be served as a static asset, but will instead be parsed by Cloudflare Pages and its rules will be applied to static asset responses.
+
+<Render
+	product="workers"
+	file="headers_redirects_directory-pages"
+	params={{ filename: "_redirects" }}
+/>
 
 :::caution
 
-
-Redirects defined in the `_redirects` file are not applied to requests served by [Functions](/pages/functions/), even if the Function route matches the URL pattern. If your Pages application uses Functions, you must migrate any behaviors from the `_redirects` file to the code in the appropriate `/functions` route, or [exclude the route from Functions](/pages/functions/routing/#create-a-_routesjson-file).
-
+Redirects defined in the `_redirects` file are not applied to requests served by <a href="/pages/functions/">Pages Functions</a>, even if the Function route matches the URL pattern. If your Pages application uses Functions, you must migrate any behaviors from the <code>_redirects</code> file to the code in the appropriate <code>/functions</code> route, or <a href="/pages/functions/routing/#create-a-_routesjson-file">exclude the route from Functions</a>.
 
 :::
 
@@ -26,34 +32,29 @@ Only one redirect can be defined per line and must follow this format, otherwise
 [source] [destination] [code?]
 ```
 
+- `source` <Type text="string" /> <MetaInfo text="required" />
+  - A file path.
+  - Can include [wildcards (`*`)](#splats) and [placeholders](#placeholders).
+  - Because fragments are evaluated by your browser and not Cloudflare's network, any fragments in the source are not evaluated.
 
+- `destination` <Type text="string" /> <MetaInfo text="required" />
+  - A file path or external link.
+  - Can include fragments, query strings, [splats](#splats), and [placeholders](#placeholders).
 
-* `source` required
-
-  * A file path.
-  * Can include [wildcards (`*`)](#splats) and [placeholders](#placeholders).
-  * Because fragments are evaluated by your browser and not Cloudflare's network, any fragments in the source are not evaluated.
-* `destination` required
-
-  * A file path or external link.
-  * Can include fragments, query strings, [splats](#splats), and [placeholders](#placeholders).
-* `code` default: `302`
-
-  * Optional parameter
-
-
+- `code` <Type text="number" /> <MetaInfo text="(default: 302) optional" />
+  - Optional parameter
 
 Lines starting with a `#` will be treated as comments.
 
 ### Per file
 
-A project is limited to 2,000 static redirects and 100 dynamic redirects, for a combined total of 2,100 redirects. Each redirect declaration has a 1,000-character limit.
+A `_redirects` file is limited to 2,000 static redirects and 100 dynamic redirects, for a combined total of 2,100 redirects. Each redirect declaration has a 1,000-character limit.
 
 In your `_redirects` file:
 
-* The order of your redirects matter. If there are multiple redirects for the same `source` path, the topmost redirect is applied.
-* Static redirects should appear before dynamic redirects.
-* Redirects are always followed, regardless of whether or not an asset matches the incoming request.
+- The order of your redirects matter. If there are multiple redirects for the same `source` path, the top-most redirect is applied.
+- Static redirects should appear before dynamic redirects.
+- Redirects are always followed, regardless of whether or not an asset matches the incoming request.
 
 A complete example with multiple redirects may look like the following:
 
@@ -69,37 +70,21 @@ A complete example with multiple redirects may look like the following:
 /products/:code/:name /products?code=:code&name=:name
 ```
 
-:::note
-
-
-In the case of some frameworks, such as Jekyll, you may need to manually copy and paste your `_redirects` file to the build output directory. To do this:
-
-1. Log in to the [Cloudflare dashboard](https://dash.cloudflare.com) and select your account.
-2. Go to **Workers & Pages** > your Pages project > **Settings** > **Builds & deployments**.
-3. Go to **Build configurations** > **Edit configurations** > change the build command to `jekyll build && cp _redirects _site/_redirects` and select **Save**.
-
-
-:::
-
 ## Advanced redirects
 
-Cloudflare currently offers limited support for advanced redirects. More support will be added in the future.
-
-
+Cloudflare currently offers limited support for advanced redirects.
 
 | Feature                             | Support | Example                                                         | Notes                                   |
 | ----------------------------------- | ------- | --------------------------------------------------------------- | --------------------------------------- |
-| Redirects (301, 302, 303, 307, 308) | Yes     | `/home / 301`                                                   | 302 is used as the default status code. |
-| Rewrites (other status codes)       | No      | `/blog/* /blog/404.html 404`                                    |                                         |
-| Splats                              | Yes     | `/blog/* /posts/:splat`                                         | Refer to [Splats](#splats).             |
-| Placeholders                        | Yes     | `/blog/:year/:month/:date/:slug /news/:year/:month/:date/:slug` | Refer to [Placeholders](#placeholders). |
-| Query Parameters                    | No      | `/shop id=:id /blog/:id 301`                                    |                                         |
-| Proxying                            | Yes     | `/blog/* /news/:splat 200`                                      | Refer to [Proxying](#proxying).         |
-| Domain-level redirects              | No      | `workers.example.com/* workers.example.com/blog/:splat 301`     |                                         |
-| Redirect by country or language     | No      | `/ /us 302 Country=us`                                          |                                         |
-| Redirect by cookie                  | No      | `/\* /preview/:splat 302 Cookie=preview`                        |                                         |
-
-
+| Redirects (301, 302, 303, 307, 308) | ✅      | `/home / 301`                                                   | 302 is used as the default status code. |
+| Rewrites (other status codes)       | ❌      | `/blog/* /blog/404.html 404`                                    |                                         |
+| Splats                              | ✅      | `/blog/* /posts/:splat`                                         | Refer to [Splats](#splats).             |
+| Placeholders                        | ✅      | `/blog/:year/:month/:date/:slug /news/:year/:month/:date/:slug` | Refer to [Placeholders](#placeholders). |
+| Query Parameters                    | ❌      | `/shop id=:id /blog/:id 301`                                    |                                         |
+| Proxying                            | ✅      | `/blog/* /news/:splat 200`                                      | Refer to [Proxying](#proxying).         |
+| Domain-level redirects              | ❌      | `workers.example.com/* workers.example.com/blog/:splat 301`     |                                         |
+| Redirect by country or language     | ❌      | `/ /us 302 Country=us`                                          |                                         |
+| Redirect by cookie                  | ❌      | `/\* /preview/:splat 302 Cookie=preview`                        |                                         |
 
 ## Redirects and header matching
 
@@ -113,7 +98,11 @@ The matched value can be used in the redirect location with `:splat`.
 
 ### Placeholders
 
-<Render file="headers_redirects_placeholders" params={{ one: "redirect" }} />
+<Render
+	product="workers"
+	file="headers_redirects_placeholders"
+	params={{ filetype: "redirect" }}
+/>
 
 ```txt
 /movies/:title /media/:title
@@ -123,7 +112,7 @@ The matched value can be used in the redirect location with `:splat`.
 
 Proxying will only support relative URLs on your site. You cannot proxy external domains.
 
-Only the first redirect in your will apply. For example, in the following example, a request to `/a` will render `/b`, and a request to `/b` will render `/c`, but `/a` will not render `/c`.
+Only the first redirect in your file will apply. For example, in the following example, a request to `/a` will render `/b`, and a request to `/b` will render `/c`, but `/a` will not render `/c`.
 
 ```
 /a /b 200
@@ -141,20 +130,17 @@ For example, if you have added `/about/faq/* /about/faqs 200` to your `_redirect
   Link: </about/faqs>; rel="canonical"
 ```
 
-
 :::
 
 ## Surpass `_redirects` limits
 
-A [`_redirects`](/pages/platform/limits/#redirects) file has a maximum of 2,000 static redirects and 100 dynamic redirects, for a combined total of 2,100 redirects. Use [Bulk Redirects](/rules/url-forwarding/bulk-redirects/) to handle redirects that surpasses the 2,100 redirect rules limit set by Pages.
+A <a href="/pages/platform/limits/#redirects">`_redirects`</a> file has a maximum of 2,000 static redirects and 100 dynamic redirects, for a combined total of 2,100 redirects. Use [Bulk Redirects](/rules/url-forwarding/bulk-redirects/) to handle redirects that surpasses the 2,100 redirect rules limit of `_redirects`.
 
 :::note
-
 
 The redirects defined in the `_redirects` file of your build folder can work together with your Bulk Redirects. In case of duplicates, Bulk Redirects will run in front of your Pages project, where your other redirects live.
 
 For example, if you have Bulk Redirects set up to direct `abc.com` to `xyz.com` but also have `_redirects` set up to direct `xyz.com` to `foo.com`, a request for `abc.com` will eventually redirect to `foo.com`.
-
 
 :::
 
@@ -162,4 +148,4 @@ To use Bulk Redirects, refer to the [Bulk Redirects dashboard documentation](/ru
 
 ## Related resources
 
-* [Transform Rules](/rules/transform/)
+- [Transform Rules](/rules/transform/)

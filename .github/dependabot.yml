@@ -6,8 +6,48 @@ updates:
     commit-message:
       prefix: "[Docs Site] "
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "tuesday"
+    cooldown:
+      default-days: 1
     assignees:
-      - "KianNH"
+      - "mvvmm"
     reviewers:
-      - "KianNH"
+      - "cloudflare/content-engineering"
+    ignore:
+      - dependency-name: "mermaid"
+    groups:
+      non-major:
+        update-types:
+          - "minor"
+          - "patch"
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "@cloudflare/nimbus-docs"
+  - package-ecosystem: "npm"
+    directory: "/.flue"
+    versioning-strategy: "increase"
+    commit-message:
+      prefix: "[Flue] "
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+    cooldown:
+      default-days: 1
+    assignees:
+      - "mvvmm"
+    reviewers:
+      - "cloudflare/content-engineering"
+    ignore:
+      - dependency-name: "@flue/runtime"
+      - dependency-name: "@flue/cli"
+      - dependency-name: "@flue/sdk"
+      - dependency-name: "@flue/vite"
+    groups:
+      non-major:
+        update-types:
+          - "minor"
+          - "patch"
+        patterns:
+          - "*"

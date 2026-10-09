@@ -1,11 +1,18 @@
 ---
-type: overview
 pcx_content_type: navigation
-title: Examples
+description: Example Transform Rules for URL rewrites and header modifications.
+products:
+  - rules
+title: Transform Rules examples
 sidebar:
   order: 10
+  group:
+    label: Examples
 ---
 
-import { ListExamples } from "~/components";
+import { ResourcesBySelector } from "~/components";
 
-<ListExamples directory="rules/transform/examples/" filters={["operation"]} />
+<ResourcesBySelector
+	directory="rules/transform/examples/"
+	types={["example"]}
+/>

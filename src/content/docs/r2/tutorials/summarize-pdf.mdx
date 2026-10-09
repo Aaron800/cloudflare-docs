@@ -1,18 +1,16 @@
 ---
 title: Use event notification to summarize PDF files on upload
 pcx_content_type: tutorial
-content_type: 📝 Tutorial
-products:
-  - Queues
-  - Workers
-  - Workers AI
+products: [workers, queues, workers-ai]
 difficulty: Intermediate
-updated: 2024-10-11
-languages:
+reviewed: 2024-10-11
+tags:
   - TypeScript
+description: >-
+  Use event notification to summarize PDF files on upload. Use Workers AI to summarize the PDF and store the summary as a text file.
 ---
 
-import { Render, PackageManagers, Details } from "~/components";
+import { Render, PackageManagers, Details, WranglerConfig } from "~/components";
 
 In this tutorial, you will learn how to use [event notifications](/r2/buckets/event-notifications/) to process a PDF file when it is uploaded to an R2 bucket. You will use [Workers AI](/workers-ai/) to summarize the PDF and store the summary as a text file in the same bucket.
 
@@ -44,11 +42,10 @@ Create a new Worker project by running the following commands:
 />
 
     <Render
-    	file="c3-post-run-steps"
+    	file="c3-post-run-steps-hello-world"
     	product="workers"
     	params={{
-    	category: "hello-world",
-    	type: "Hello World Worker",
+    	type: "Worker only",
     	lang: "TypeScript",
     	}}
     />
@@ -61,15 +58,16 @@ cd pdf-summarizer
 
 ## 2. Create the front-end
 
-Using Static Assets, you can serve the front-end of your application from your Worker. To use Static Assets, you need to add the required bindings to your `wrangler.toml` file.
-
-import { WranglerConfig } from "~/components";
+Using Static Assets, you can serve the front-end of your application from your Worker. To use Static Assets, you need to add the required bindings to your Wrangler file.
 
 <WranglerConfig>
 
-```toml
-[assets]
-directory = "public"
+```jsonc
+{
+	"assets": {
+		"directory": "public"
+	}
+}
 ```
 
 </WranglerConfig>
@@ -218,7 +216,7 @@ To view the front-end of your application, run the following command and navigat
 npm run dev
 ```
 
-```output
+```txt output
  ⛅️ wrangler 3.80.2
 -------------------
 
@@ -237,16 +235,19 @@ When you open the URL in your browser, you will see that there is a file upload 
 
 ## 3. Handle file upload
 
-To handle the file upload, you will first need to add the R2 binding. In the `wrangler.toml` file, add the following code:
-
-
+To handle the file upload, you will first need to add the R2 binding. In the Wrangler file, add the following code:
 
 <WranglerConfig>
 
-```toml
-[[r2_buckets]]
-binding = "MY_BUCKET"
-bucket_name = "<R2_BUCKET_NAME>"
+```jsonc
+{
+	"r2_buckets": [
+		{
+			"binding": "MY_BUCKET",
+			"bucket_name": "<R2_BUCKET_NAME>"
+		}
+	]
+}
 ```
 
 </WranglerConfig>
@@ -283,6 +284,8 @@ The above code does the following:
 
 Since the Worker code is written in TypeScript, you should run the following command to add the necessary type definitions. While this is not required, it will help you avoid errors.
 
+<Render file="request-dot-clone-warning" product="workers" />
+
 ```sh
 npm run cf-typegen
 ```
@@ -295,27 +298,26 @@ npm run dev
 
 ## 4. Create a queue
 
-:::note
-
-You will need a [Workers Paid plan](/workers/platform/pricing/) to create and use [Queues](/queues/) and Cloudflare Workers to consume event notifications.
-
-:::
-
 Event notifications capture changes to data in your R2 bucket. You will need to create a new queue `pdf-summarize` to receive notifications:
 
 ```sh
 npx wrangler queues create pdf-summarizer
 ```
 
-Add the binding to the `wrangler.toml` file:
-
-
+Add the binding to the Wrangler file:
 
 <WranglerConfig>
 
-```toml title="wrangler.toml"
-[[queues.consumers]]
-queue = "pdf-summarizer"
+```jsonc
+{
+	"queues": {
+		"consumers": [
+			{
+				"queue": "pdf-summarizer"
+			}
+		]
+	}
+}
 ```
 
 </WranglerConfig>
@@ -351,9 +353,7 @@ To extract the textual content from the PDF, the Worker will use the [unpdf](htt
 
 Install the `unpdf` library by running the following command:
 
-```sh
-npm install unpdf
-```
+<PackageManagers pkg="unpdf" />
 
 Update the `src/index.ts` file to import the required modules from the `unpdf` library:
 
@@ -391,15 +391,16 @@ The above code does the following:
 
 ## 7. Use Workers AI to summarize the content
 
-To use Workers AI, you will need to add the Workers AI binding to the `wrangler.toml` file. The `wrangler.toml` file should contain the following code:
-
-
+To use Workers AI, you will need to add the Workers AI binding to the Wrangler file. The Wrangler file should contain the following code:
 
 <WranglerConfig>
 
-```toml title="wrangler.toml"
-[ai]
-binding = "AI"
+```jsonc
+{
+	"ai": {
+		"binding": "AI"
+	}
+}
 ```
 
 </WranglerConfig>
@@ -461,7 +462,7 @@ The queue handler now adds the summary to the R2 bucket as a text file.
 
 ## 9. Enable event notifications
 
-Your `queue` handler is ready to handle incoming event notification messages. You need to enable event notifications with the [`wrangler r2 bucket notification create` command](/workers/wrangler/commands/#notification-create) for your bucket. The following command creates an event notification for the `object-create` event type for the `pdf` suffix:
+Your `queue` handler is ready to handle incoming event notification messages. You need to enable event notifications with the [`wrangler r2 bucket notification create` command](/workers/wrangler/commands/r2/#r2-bucket-notification-create) for your bucket. The following command creates an event notification for the `object-create` event type for the `pdf` suffix:
 
 ```sh
 npx wrangler r2 bucket notification create <R2_BUCKET_NAME> --event-type object-create --queue pdf-summarizer --suffix "pdf"
@@ -473,7 +474,7 @@ An event notification is created for the `pdf` suffix. When a new file with the 
 
 ## 10. Deploy your Worker
 
-To deploy your Worker, run the [`wrangler deploy`](/workers/wrangler/commands/#deploy) command:
+To deploy your Worker, run the [`wrangler deploy`](/workers/wrangler/commands/general/#deploy) command:
 
 ```sh
 npx wrangler deploy
@@ -485,7 +486,7 @@ In the output of the `wrangler deploy` command, copy the URL. This is the URL of
 
 To test the application, navigate to the URL of your deployed application and upload a PDF file. Alternatively, you can use the [Cloudflare dashboard](https://dash.cloudflare.com/) to upload a PDF file.
 
-To view the logs, you can use the [`wrangler tail`](/workers/wrangler/commands/#tail) command.
+To view the logs, you can use the [`wrangler tail`](/workers/wrangler/commands/general/#tail) command.
 
 ```sh
 npx wrangler tail

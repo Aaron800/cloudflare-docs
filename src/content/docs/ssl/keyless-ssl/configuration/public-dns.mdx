@@ -1,6 +1,11 @@
 ---
 title: Public DNS
 pcx_content_type: get-started
+description: Deploy Keyless SSL with public DNS resolution.
+products:
+  - ssl
+tags:
+  - DNS
 sidebar:
   order: 2
 head:
@@ -8,15 +13,15 @@ head:
     content: Public DNS setup - Keyless SSL
 ---
 
-import { Render, TabItem, Tabs } from "~/components";
+import { Render, TabItem, Tabs, DashButton } from "~/components";
 
 If you cannot use a [Cloudflare Tunnel setup](/ssl/keyless-ssl/configuration/cloudflare-tunnel/), you can also create a public DNS record for your key server.
 
-This setup option is not ideal as the DNS record cannot be [proxied](/dns/manage-dns-records/reference/proxied-dns-records/) and - as a result - will expose the origin IP address of your key server.
+This setup option is not ideal as the DNS record cannot be [proxied](/dns/proxy-status/) and - as a result - will expose the origin IP address of your key server.
 
 ---
 
-<Render file="keyless-prereqs" />
+<Render file="keyless-prereqs" product="ssl" />
 
 ---
 
@@ -32,20 +37,45 @@ As a security measure, you should hide the hostname of your key server.
 
 :::
 
+:::note
+
+If your key server hostname is on a Cloudflare zone, you must create a DNS-only (grey cloud) record for it — do not proxy it. If the record is proxied, the hostname resolves to Cloudflare's edge IP addresses instead of your key server, so Cloudflare's keyless client cannot reach it. If the record is missing, resolution fails with NXDOMAIN. Either way, the Keyless SSL handshake fails. The fix is the DNS-only record — not adding the hostname to a certificate Subject Alternative Name (SAN).
+
+:::
+
+---
+
+## Certificates used in Keyless SSL
+
+Keyless SSL involves **two different certificates**. Confusing them is the most common setup error.
+
+| Certificate | What it is | SAN should contain |
+| --- | --- | --- |
+| **Edge (Keyless SSL) certificate** | The public certificate Cloudflare serves for your site. | Your site hostnames only (for example, `www.example.com`) |
+| **Key server authentication certificate** | The certificate your key server uses to prove itself to Cloudflare. | The key server hostname only |
+
+:::caution
+
+Do **not** add your key server hostname to the SAN of your public edge certificate. It is not required, and it leaks internal hostnames into the public certificate and Certificate Transparency logs.
+
+:::
+
 ---
 
 ## 2. Upload Keyless SSL Certificates
 
-<Render file="keyless-upload-preamble" />
+<Render file="keyless-upload-preamble" product="ssl" />
 
 <Tabs syncKey="dashPlusAPI"> <TabItem label="Dashboard">
 
 To create a Keyless certificate in the dashboard:
 
-1. Log in to the [Cloudflare dashboard](https://dash.cloudflare.com) and select your account and zone.
-2. Go to **SSL/TLS** > **Edge Certificates**.
-3. Select **Upload Keyless SSL Certificate**.
-4. Fill in the upload modal with the certificate and other details and select **Add**.
+1. In the Cloudflare dashboard, go to the **Edge Certificates** page.
+
+   <DashButton url="/?to=/:account/:zone/ssl-tls/edge-certificates" />
+
+2. Select **Upload Keyless SSL Certificate**.
+3. Fill in the upload modal with the certificate and other details and select **Add**.
 
 | Label               | Description                                                                                                                                                    | Example Values                                               |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
@@ -67,6 +97,7 @@ To create a Keyless certificate with the API, send a [`POST`](/api/resources/key
 
 <Render
 	file="keyless-key-server-setup"
+	product="ssl"
 	params={{ one: "11aa40b4a5db06d4889e48e2f.example.com" }}
 />
 
